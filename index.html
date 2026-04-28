@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SavaşArena</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #0a0a1a;
+      color: #fff;
+      min-height: 100vh;
+    }
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 32px;
+      border-bottom: 1px solid rgba(255,200,0,0.2);
+      background: rgba(0,0,0,0.5);
+    }
+    .logo {
+      font-family: 'Bangers', cursive;
+      font-size: 32px;
+      letter-spacing: 2px;
+      color: #FFD700;
+    }
+    .logo span { color: #FF4500; }
+    .nav-btn {
+      background: #FF4500;
+      color: #fff;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .hero {
+      text-align: center;
+      padding: 60px 24px 40px;
+    }
+    .hero h1 {
+      font-family: 'Bangers', cursive;
+      font-size: 64px;
+      color: #FFD700;
+      letter-spacing: 3px;
+      text-shadow: 3px 3px 0 #FF4500;
+      margin-bottom: 16px;
+    }
+    .hero h1 span { color: #fff; }
+    .hero p {
+      color: rgba(255,255,255,0.6);
+      font-size: 18px;
+      max-width: 500px;
+      margin: 0 auto 32px;
+    }
+    .btn-primary {
+      background: #FFD700;
+      color: #0a0a1a;
+      border: none;
+      padding: 14px 36px;
+      border-radius: 30px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin: 40px 0;
+    }
+    .stat {
+      flex: 1;
+      max-width: 160px;
+      text-align: center;
+      padding: 20px;
+      border-right: 1px solid rgba(255,255,255,0.08);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Bangers', cursive;
+      font-size: 32px;
+      color: #FFD700;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .games-section {
+      padding: 0 32px 48px;
+    }
+    .section-title {
+      font-family: 'Bangers', cursive;
+      font-size: 36px;
+      color: #FFD700;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+    .section-sub {
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 24px;
+    }
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 16px;
+    }
+    .game-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .game-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(255,215,0,0.5);
+    }
+    .game-thumb {
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 52px;
+      position: relative;
+    }
+    .badge {
+      position: absolute;
+      top: 8px; right: 8px;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 10px;
+    }
+    .badge-hot { background: #FFD700; color: #0a0a1a; }
+    .badge-new { background: #FF4500; color: #fff; }
+    .badge-co  { background: #00C896; color: #fff; }
+    .game-info { padding: 12px; }
+    .game-name {
+      font-weight: 800;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      color: rgba(255,255,255,0.45);
+      background: rgba(255,255,255,0.06);
+      padding: 2px 8px;
+      border-radius: 8px;
+      margin: 2px 2px 0 0;
+    }
+    .online-banner {
+      margin: 0 32px 48px;
+      background: rgba(0,200,150,0.1);
+      border: 1px solid rgba(0,200,150,0.3);
+      border-radius: 16px;
+      padding: 24px 28px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .online-banner h3 {
+      font-family: 'Bangers', cursive;
+      font-size: 24px;
+      color: #00C896;
+      letter-spacing: 1px;
+    }
+    .online-banner p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 4px;
+    }
+    .online-btn {
+      margin-left: auto;
+      background: #00C896;
+      color: #0a0a1a;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 20px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.2);
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="logo">SAVAŞ<span>ARENA</span></div>
+    <button class="nav-btn">Giriş Yap</button>
+  </nav>
+
+  <section class="hero">
+    <h1>SAVAŞ<span>ARENA</span><br>OYUN MERKEZİ</h1>
+    <p>Dövüş, platform ve zombi oyunlarıyla arkadaşlarınla oyna!</p>
+    <button class="btn-primary">Hemen Oyna</button>
+  </section>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num">7</div>
+      <div class="stat-label">OYUN</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">2</div>
+      <div class="stat-label">MOD</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">MPC</div>
+      <div class="stat-label">YAPAY ZEKA</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">TR</div>
+      <div class="stat-label">TÜRKÇE</div>
+    </div>
+  </div>
+
+  <section class="games-section">
+    <div class="section-title">TÜM OYUNLAR</div>
+    <div class="section-sub">Bir oyun seç ve oynamaya başla</div>
+    <div class="games-grid">
+
+      <div class="game-card">
+        <div class="game-thumb" style="background:#3d1500">
+          🧟<span class="badge badge-hot">POPÜLER</span>
+        </div>
+        <div class="game-info">
+          <div class="game-name">Zombi Baskını</div>
+          <span class="tag">MPC</span>
+          <span class="tag">Online</span>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb" style="background:#001540">
+          🥊<span class="badge badge-new">YENİ</span>
+        </div>
+        <div class="game-info">
+          <div class="game-name">Stick Dövüş</div>
+          <span class="tag">MPC</span>
+          <span class="tag">2 Kişi</span>
+          <span class="tag">Online</span>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb" style="background:#153d00">🏃</div>
+        <div class="game-info">
+          <div class="game-name">Platform Kahraman</div>
+          <span class="tag">2 Kişi</span>
+          <span class="tag">Online</span>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb" style="background:#3d001a">
+          🥋<span class="badge badge-hot">POPÜLER</span>
+        </div>
+        <div class="game-info">
+          <div class="game-name">Boks Maçı</div>
+          <span class="tag">MPC</span>
+          <span class="tag">2 Kişi</span>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb" style="background:#1a004d">⚡</div>
+        <div class="game-info">
+          <div class="game-name">Engel Koşusu</div>
+          <span class="tag">Online Yarış</span>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb" style="background:#3d3d00">
+          ⚔️<span class="badge badge-co">CO-OP</span>
+        </div>
+        <div class="game-info">
+          <div class="game-name">Kılıç Düellosu</div>
+          <span class="tag">MPC</span>
+          <span class="tag">2 Kişi</span>
+          <span class="tag">Online</span>
+        </div>
+      </div>
+
+      <div class="game-card">
+        <div class="game-thumb" style="background:#003d3d">🔵</div>
+        <div class="game-info">
+          <div class="game-name">Zıplayan Top</div>
+          <span class="tag">2 Kişi</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="online-banner">
+    <div>
+      <h3>🌐 ONLINE MOD — TÜRKİYE GENELİ</h3>
+      <p>Ankara'dan Muğla'ya istediğin birini bul ve oyna!</p>
+    </div>
+    <button class="online-btn">Oda Kur</button>
+  </div>
+
+  <footer>
+    SavaşArena © 2025 — Tüm oyunlar tarayıcıda çalışır, kurulum gerekmez.
+  </footer>
+
+</body>
+</html>
