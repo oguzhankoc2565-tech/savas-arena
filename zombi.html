@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zombi Baskını</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#0a0a0a;display:flex;flex-direction:column;align-items:center;font-family:Arial,sans-serif;color:#fff;padding:8px;}
+    h1{color:#00ff88;font-size:22px;margin-bottom:6px;text-shadow:0 0 10px #00ff88;}
+    #bilgi{display:flex;gap:20px;margin-bottom:6px;font-size:14px;font-weight:bold;flex-wrap:wrap;justify-content:center;}
+    canvas{border:3px solid #00ff88;border-radius:8px;cursor:crosshair;}
+    #panel{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;justify-content:center;}
+    .btn{padding:6px 14px;border:2px solid #444;border-radius:14px;background:#1a1a1a;color:#fff;font-size:12px;cursor:pointer;transition:all 0.2s;}
+    .btn:hover{border-color:#00ff88;color:#00ff88;}
+    .btn.aktif{border-color:#00ff88;background:#00ff8822;color:#00ff88;}
+    .btn.upgrade{border-color:#ffaa00;color:#ffaa00;}
+    .btn.upgrade:hover{background:#ffaa0022;}
+    #mesaj{margin-top:6px;font-size:12px;color:#888;text-align:center;}
+    #yenidenBtn{display:none;margin-top:10px;padding:10px 28px;background:#00ff88;color:#000;border:none;border-radius:20px;font-size:15px;font-weight:bold;cursor:pointer;}
+    #geriBtn{margin-top:6px;padding:5px 18px;background:transparent;color:#888;border:1px solid #333;border-radius:14px;font-size:12px;cursor:pointer;}
+    #silahBilgi{color:#00ccff;font-size:13px;font-weight:bold;}
+  </style>
+</head>
+<body>
+<h1>🧟 ZOMBİ BASKINI</h1>
+<div id="bilgi">
+  <span>❤️ <span id="canEl">5</span></span>
+  <span>⭐ <span id="skorEl">0</span></span>
+  <span>🌊 <span id="dalgaEl">1</span></span>
+  <span>💰 <span id="paraEl">150</span></span>
+  <span id="silahBilgi">🔫 Tabanca</span>
+</div>
+<canvas id="oyun" width="800" height="380"></canvas>
+<div id="panel">
+  <button class="btn aktif" id="btnAtes" onclick="sec('ates')">🔫 Ateş (ücretsiz)</button>
+  <button class="btn" id="btnBarikat" onclick="sec('barikat')">🧱 Barikat 30💰</button>
+  <button class="btn" id="btnTuzak" onclick="sec('tuzak')">⚡ Tuzak 20💰</button>
+  <button class="btn" id="btnKule" onclick="sec('kule')">🗼 Kule 60💰</button>
+  <button class="btn" id="btnAsker" onclick="sec('asker')">🪖 Asker 50💰</button>
+  <button class="btn" id="btnNisanci" onclick="sec('nisanci')">🎯 Nişancı 80💰</button>
+  <button class="btn" id="btnBombaci" onclick="sec('bombaci')">💣 Bombacı 100💰</button>
+  <button class="btn upgrade" onclick="silahYukselt()">⬆️ Silah Yükselt</button>
+  <button class="btn upgrade" onclick="duvarYukselt()">⬆️ Duvar Güçlendir 40💰</button>
+</div>
+<div id="mesaj">← → hareket | W/Yukarı zıpla | SPACE ateş et | Araç seç → haritaya tıkla</div>
+<button id="yenidenBtn" onclick="baslat()">🔄 Yeniden Oyna</button>
+<button id="geriBtn" onclick="window.location.href='index.html'">← Ana Sayfa</button>
+
+<script>
+const canvas=document.getElementById('oyun');
+const ctx=canvas.getContext('2d');
+const W=800,H=380,ZEMIN=H-55,G=0.55;
+
+const SILAHLAR=[
+  {ad:'Tabanca',hasar:1,hiz:15,sayi:1,renk:'#ffdd00',maliyet:0},
+  {ad:'Shotgun',hasar:2,hiz:25,sayi:3,renk:'#ff8800',maliyet:120},
+  {ad:'Makineli',hasar:1,hiz:5,sayi:1,renk:'#ff4444',maliyet:250}
+];
+const DUVAR_SEV=[
+  {can:4,renk:'#8B4513',renk2:'#654321'},
+  {can:8,renk:'#888',renk2:'#666'},
+  {can:15,renk:'#4488ff',renk2:'#2255cc'}
+];
+
+let oyuncu,zombiler,mermiler,barikatlar,tuzaklar,kuleler,askerler,nisancilar,bombaci_lar,patlamalar,altinlar;
+let skor,can,dalga,para,oyunBitti,secili,silahSev,duvarSev,atisZamani,frameNo;
+let tuslar={};
+
+function baslat(){
+  oyuncu={x:80,y:ZEMIN-44,vy:0,yerde:true,w:28,h:44,hiz:4,yon:1,barikatArka:false};
+  zombiler=[];mermiler=[];barikatlar=[
+  {x:200,y:ZEMIN-56,w:40,h:56,can:200,canMax:200},
+  {x:500,y:ZEMIN-56,w:40,h:56,can:200,canMax:200}
+];tuzaklar=[];kuleler=[];
+  askerler=[];nisancilar=[];bombaci_lar=[];patlamalar=[];altinlar=[];
+  skor=0;can=5;dalga=1;para=150;oyunBitti=false;
+  secili='ates';silahSev=0;duvarSev=0;atisZamani=0;frameNo=0;
+  guncelle_bilgi();
+  document.getElementById('yenidenBtn').style.display='none';
+  sec('ates');
+  zombiUret();
+  requestAnimationFrame(dongu);
+}
+
+function guncelle_bilgi(){
+  document.getElementById('canEl').textContent=can;
+  document.getElementById('skorEl').textContent=skor;
+  document.getElementById('dalgaEl').textContent=dalga;
+  document.getElementById('paraEl').textContent=para;
+  document.getElementById('silahBilgi').textContent=
+    (silahSev===0?'🔫':silahSev===1?'💥':'🔥')+' '+SILAHLAR[silahSev].ad;
+}
+
+function sec(arac){
+  secili=arac;
+  ['ates','barikat','tuzak','kule','asker','nisanci','bombaci'].forEach(a=>{
+    let el=document.getElementById('btn'+a.charAt(0).toUpperCase()+a.slice(1));
+    if(el) el.classList.toggle('aktif',a===arac);
+  });
+}
+
+function silahYukselt(){
+  if(silahSev>=2){alert('Maksimum seviye!');return;}
+  let maliyet=SILAHLAR[silahSev+1].maliyet;
+  if(para<maliyet){alert('Yeterli altın yok! Lazım: '+maliyet+'💰');return;}
+  para-=maliyet;silahSev++;guncelle_bilgi();
+}
+
+function duvarYukselt(){
+  if(duvarSev>=2){alert('Duvar maksimum seviyede!');return;}
+  if(para<40){alert('Yeterli altın yok!');return;}
+  para-=40;duvarSev++;
+  barikatlar.forEach(b=>{b.canMax=DUVAR_SEV[duvarSev].can;b.can=b.canMax;});
+  guncelle_bilgi();
+}
+
+function zombiUret(){
+  let sayi=5+dalga*2;
+  for(let i=0;i<sayi;i++){
+    setTimeout(()=>{
+      if(oyunBitti)return;
+      let soldan=Math.random()<0.5;
+      let tip=dalga>6?'dev':dalga>3&&Math.random()<0.4?'zirh':dalga>1&&Math.random()<0.3?'hizli':'normal';
+      let z={
+        x:soldan?-40:W+40,
+        y:ZEMIN-40,
+        w:tip==='dev'?44:28,
+        h:tip==='dev'?50:40,
+        hiz:(tip==='hizli'?2.2:tip==='dev'?0.6:1.0)*(0.8+dalga*0.15)*(soldan?1:-1),
+        can:tip==='dev'?8+dalga*2:tip==='zirh'?4+dalga:2+dalga,
+        canMax:tip==='dev'?8+dalga*2:tip==='zirh'?4+dalga:2+dalga,
+        tip,soldan,
+        renk:tip==='dev'?'#8B0000':tip==='zirh'?'#555':tip==='hizli'?'#00aa44':'#2d5a1b',
+        emoji:tip==='dev'?'👹':tip==='zirh'?'🧟':'🧟',
+        altin:tip==='dev'?30:tip==='zirh'?20:tip==='hizli'?15:10
+      };
+      zombiler.push(z);
+    },i*900);
+  }
+}
+
+canvas.addEventListener('click',e=>{
+  if(oyunBitti)return;
+  let r=canvas.getBoundingClientRect();
+  let mx=e.clientX-r.left,my=e.clientY-r.top;
+  let sev=DUVAR_SEV[duvarSev];
+  if(secili==='barikat'&&para>=30){
+    para-=30;
+    barikatlar.push({x:mx-20,y:ZEMIN-56,w:40,h:56,can:sev.can,canMax:sev.can});
+    guncelle_bilgi();
+  } else if(secili==='tuzak'&&para>=20){
+    para-=20;
+    tuzaklar.push({x:mx-24,y:ZEMIN-8,w:48,h:8,aktif:true,bekleme:0});
+    guncelle_bilgi();
+  } else if(secili==='kule'&&para>=60){
+    para-=60;
+    kuleler.push({x:mx-16,y:ZEMIN-90,w:32,h:90,atisZamani:0});
+    guncelle_bilgi();
+  } else if(secili==='asker'&&para>=50){
+    para-=50;
+    askerler.push({x:mx-14,y:ZEMIN-40,w:28,h:40,atisZamani:0,yon:1});
+    guncelle_bilgi();
+  } else if(secili==='nisanci'&&para>=80){
+    para-=80;
+    nisancilar.push({x:mx-14,y:ZEMIN-44,w:28,h:44,atisZamani:0});
+    guncelle_bilgi();
+  } else if(secili==='bombaci'&&para>=100){
+    para-=100;
+    bombaci_lar.push({x:mx-14,y:ZEMIN-40,w:28,h:40,atisZamani:0});
+    guncelle_bilgi();
+  }
+});
+
+document.addEventListener('keydown',e=>{
+  tuslar[e.code]=true;
+  if(e.code==='Space'){e.preventDefault();oyuncuAtes();}
+  if((e.code==='ArrowUp'||e.code==='KeyW')&&oyuncu.yerde){
+    oyuncu.vy=-13;oyuncu.yerde=false;
+  }
+});
+document.addEventListener('keyup',e=>tuslar[e.code]=false);
+
+function oyuncuAtes(){
+  let s=SILAHLAR[silahSev];
+  if(frameNo-atisZamani<s.hiz)return;
+  atisZamani=frameNo;
+  if(s.sayi===1){
+    mermiler.push({x:oyuncu.x+(oyuncu.yon>0?oyuncu.w:0),y:oyuncu.y+16,vx:11*oyuncu.yon,vy:0,r:5,hasar:s.hasar,renk:s.renk,tip:'oyuncu'});
+  } else {
+    for(let i=0;i<s.sayi;i++){
+      let aci=(i-(s.sayi-1)/2)*0.18;
+      mermiler.push({x:oyuncu.x+(oyuncu.yon>0?oyuncu.w:0),y:oyuncu.y+16,vx:10*oyuncu.yon,vy:Math.sin(aci)*5,r:5,hasar:s.hasar,renk:s.renk,tip:'oyuncu'});
+    }
+  }
+}
+
+function dongu(){
+  if(oyunBitti)return;
+  frameNo++;
+  guncelleFizik();
+  ciz();
+  requestAnimationFrame(dongu);
+}
+
+function guncelleFizik(){
+  // Oyuncu
+  if(tuslar['ArrowLeft']||tuslar['KeyA']){oyuncu.x-=oyuncu.hiz;oyuncu.yon=-1;}
+  if(tuslar['ArrowRight']||tuslar['KeyD']){oyuncu.x+=oyuncu.hiz;oyuncu.yon=1;}
+  oyuncu.x=Math.max(0,Math.min(W-oyuncu.w,oyuncu.x));
+  oyuncu.vy+=G;
+  oyuncu.y+=oyuncu.vy;
+  if(oyuncu.y>=ZEMIN-oyuncu.h){oyuncu.y=ZEMIN-oyuncu.h;oyuncu.vy=0;oyuncu.yerde=true;}
+
+  // Barikatın arkasında mı?
+  oyuncu.barikatArka=false;
+  barikatlar.forEach(b=>{
+    if(oyuncu.x+oyuncu.w>b.x-5&&oyuncu.x<b.x+b.w+5&&oyuncu.y+oyuncu.h>b.y&&oyuncu.y<b.y+b.h){
+      oyuncu.barikatArka=true;
+    }
+  });
+
+  // Mermiler
+  mermiler=mermiler.filter(m=>m.x>-20&&m.x<W+20&&m.y>-20&&m.y<H+20);
+  mermiler.forEach(m=>{m.x+=m.vx;m.y+=m.vy;});
+
+  // Altınlar
+  altinlar=altinlar.filter(a=>a.bekleme>0);
+  altinlar.forEach(a=>a.bekleme--);
+
+  // Patlamalar
+  patlamalar=patlamalar.filter(p=>p.r>0);
+  patlamalar.forEach(p=>{p.r-=0.8;});
+
+  // Kule ateşi
+  kuleler.forEach(k=>{
+    if(frameNo-k.atisZamani>70){
+      let enYakin=null,enUzak=Infinity;
+      zombiler.forEach(z=>{let d=Math.abs(z.x-k.x);if(d<enUzak&&d<320){enUzak=d;enYakin=z;}});
+      if(enYakin){
+        k.atisZamani=frameNo;
+        let yon=enYakin.x>k.x?1:-1;
+        mermiler.push({x:k.x+16,y:k.y+20,vx:8*yon,vy:0,r:5,hasar:1,renk:'#00ccff',tip:'kule'});
+      }
+    }
+  });
+
+  // Asker ateşi
+  askerler.forEach(a=>{
+    if(frameNo-a.atisZamani>60){
+      let enYakin=null,enUzak=Infinity;
+      zombiler.forEach(z=>{let d=Math.abs(z.x-a.x);if(d<enUzak&&d<200){enUzak=d;enYakin=z;}});
+      if(enYakin){
+        a.atisZamani=frameNo;a.yon=enYakin.x>a.x?1:-1;
+        mermiler.push({x:a.x+14,y:a.y+16,vx:9*a.yon,vy:0,r:4,hasar:1,renk:'#ffdd00',tip:'asker'});
+      }
+    }
+  });
+
+  // Nişancı ateşi
+  nisancilar.forEach(n=>{
+    if(frameNo-n.atisZamani>120){
+      let enUzak2=null,enD=0;
+      zombiler.forEach(z=>{let d=Math.abs(z.x-n.x);if(d>enD){enD=d;enUzak2=z;}});
+      if(enUzak2&&enD<500){
+        n.atisZamani=frameNo;
+        let yon=enUzak2.x>n.x?1:-1;
+        mermiler.push({x:n.x+14,y:n.y+10,vx:14*yon,vy:0,r:4,hasar:3,renk:'#ff4444',tip:'nisanci'});
+      }
+    }
+  });
+
+  // Bombacı ateşi
+  bombaci_lar.forEach(b=>{
+    if(frameNo-b.atisZamani>150){
+      let enYakin=null,enUzak=Infinity;
+      zombiler.forEach(z=>{let d=Math.abs(z.x-b.x);if(d<enUzak&&d<250){enUzak=d;enYakin=z;}});
+      if(enYakin){
+        b.atisZamani=frameNo;
+        let yon=enYakin.x>b.x?1:-1;
+        mermiler.push({x:b.x+14,y:b.y+16,vx:7*yon,vy:-3,r:7,hasar:5,renk:'#ff8800',tip:'bomba'});
+      }
+    }
+  });
+
+  // Mermi - zombi çarpışma
+  mermiler.forEach((m,mi)=>{
+    zombiler.forEach((z,zi)=>{
+      if(m.x>z.x&&m.x<z.x+z.w&&m.y>z.y&&m.y<z.y+z.h){
+        z.can-=m.hasar;
+        if(m.tip==='bomba'){
+          patlamalar.push({x:m.x,y:m.y,r:50});
+          zombiler.forEach((z2,zi2)=>{
+            let dx=z2.x-m.x,dy=z2.y-m.y;
+            if(Math.sqrt(dx*dx+dy*dy)<60){z2.can-=4;if(z2.can<=0){zombiOl(zi2,z2);}}
+          });
+        }
+        mermiler.splice(mi,1);
+        if(z.can<=0)zombiOl(zi,z);
+      }
+    });
+  });
+
+  // Mermi - barikat
+  mermiler.forEach((m,mi)=>{
+    if(m.tip==='oyuncu')return;
+    barikatlar.forEach(b=>{
+      if(m.x>b.x&&m.x<b.x+b.w&&m.y>b.y&&m.y<b.y+b.h)mermiler.splice(mi,1);
+    });
+  });
+
+  // Zombi hareketi
+  zombiler.forEach((z,zi)=>{
+    let engel=false;
+    barikatlar.forEach((b,bi)=>{
+      if(z.x+z.w>b.x&&z.x<b.x+b.w&&Math.abs((z.y+z.h)-(b.y+b.h))<10){
+        engel=true;
+        b.can-=0.005;
+        if(b.can<=0)barikatlar.splice(bi,1);
+      }
+    });
+    if(!engel)z.x+=z.hiz;
+
+    // Tuzak
+    tuzaklar.forEach(t=>{
+      if(t.aktif&&z.x+z.w>t.x&&z.x<t.x+t.w&&z.y+z.h>=t.y){
+        z.can-=4;t.aktif=false;t.bekleme=200;
+        if(z.can<=0)zombiOl(zi,z);
+      }
+    });
+
+    // Tuzak yenilenme
+    tuzaklar.forEach(t=>{if(!t.aktif){t.bekleme--;if(t.bekleme<=0)t.aktif=true;}});
+
+    // Oyuncuya çarpma
+    if(z.x+z.w>oyuncu.x&&z.x<oyuncu.x+oyuncu.w&&z.y+z.h>oyuncu.y&&z.y<oyuncu.y+oyuncu.h){
+      can--;guncelle_bilgi();
+      z.x=z.hiz>0?-60:W+60;
+      if(can<=0){bitis();return;}
+    }
+  });
+
+  if(zombiler.length===0&&frameNo>60){
+    dalga++;para+=40;guncelle_bilgi();zombiUret();
+  }
+}
+
+function zombiOl(zi,z){
+  if(!zombiler[zi])return;
+  zombiler.splice(zi,1);
+  skor+=10*dalga;para+=z.altin;
+  altinlar.push({x:z.x+z.w/2,y:z.y,bekleme:90});
+  guncelle_bilgi();
+}
+
+function ciz(){
+  // Arkaplan
+  let grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'#0a0a1a');
+  grad.addColorStop(1,'#1a0a0a');
+  ctx.fillStyle=grad;
+  ctx.fillRect(0,0,W,H);
+
+  // Bulutlar / arka
+  ctx.fillStyle='rgba(255,50,50,0.05)';
+  ctx.fillRect(0,0,W,H/2);
+
+  // Zemin
+  ctx.fillStyle='#2d1b00';
+  ctx.fillRect(0,ZEMIN,W,H-ZEMIN);
+  ctx.fillStyle='#3d2500';
+  ctx.fillRect(0,ZEMIN,W,8);
+
+  // Tuzaklar
+  tuzaklar.forEach(t=>{
+    ctx.fillStyle=t.aktif?'#ffaa00':'#555';
+    ctx.fillRect(t.x,t.y,t.w,t.h);
+    if(t.aktif){
+      ctx.fillStyle='#ff4400';
+      for(let i=0;i<3;i++){
+        ctx.fillRect(t.x+6+i*12,t.y-4,4,4);
+      }
+    }
+  });
+
+  // Barikatlar
+  barikatlar.forEach(b=>{
+    let sev=duvarSev;
+    ctx.fillStyle=DUVAR_SEV[sev].renk;
+    ctx.fillRect(b.x,b.y,b.w,b.h);
+    ctx.fillStyle=DUVAR_SEV[sev].renk2;
+    for(let i=0;i<3;i++){
+      ctx.fillRect(b.x+2,b.y+4+i*16,b.w-4,8);
+    }
+    // Can barı
+    ctx.fillStyle='#ff0000';
+    ctx.fillRect(b.x,b.y-6,b.w,4);
+    ctx.fillStyle='#00ff00';
+    ctx.fillRect(b.x,b.y-6,b.w*(b.can/b.canMax),4);
+    // Seviye rozeti
+    ctx.fillStyle='#fff';
+    ctx.font='bold 10px Arial';
+    ctx.textAlign='center';
+    ctx.fillText('Lv'+(sev+1),b.x+b.w/2,b.y+b.h/2+4);
+  });
+
+  // Kuleler
+  kuleler.forEach(k=>{
+    ctx.fillStyle='#334';
+    ctx.fillRect(k.x,k.y,k.w,k.h);
+    ctx.fillStyle='#556';
+    ctx.fillRect(k.x+4,k.y,k.w-8,k.h-20);
+    ctx.fillStyle='#00ccff';
+    ctx.font='18px Arial';
+    ctx.textAlign='center';
+    ctx.fillText('🗼',k.x+k.w/2,k.y+24);
+  });
+
+  // Askerler
+  askerler.forEach(a=>{
+    ctx.font='22px Arial';
+    ctx.textAlign='center';
+    ctx.fillText('🪖',a.x+14,a.y+a.h-4);
+  });
+
+  // Nişancılar
+  nisancilar.forEach(n=>{
+    ctx.font='22px Arial';
+    ctx.textAlign='center';
+    ctx.fillText('🎯',n.x+14,n.y+n.h-4);
+  });
+
+  // Bombacılar
+  bombaci_lar.forEach(b=>{
+    ctx.font='22px Arial';
+    ctx.textAlign='center';
+    ctx.fillText('💣',b.x+14,b.y+b.h-4);
+  });
+
+  // Zombiler
+  zombiler.forEach(z=>{
+    ctx.fillStyle=z.renk;
+    ctx.beginPath();
+    ctx.arc(z.x+z.w/2,z.y+z.w/2,z.w/2,0,Math.PI*2);
+    ctx.fill();
+    ctx.font=(z.tip==='dev'?'32px':'22px')+' Arial';
+    ctx.textAlign='center';
+    ctx.fillText(z.emoji,z.x+z.w/2,z.y+z.h-4);
+    if(z.tip==='zirh'){
+      ctx.strokeStyle='#aaa';
+      ctx.lineWidth=3;
+      ctx.strokeRect(z.x,z.y,z.w,z.h);
+    }
+    // Can barı
+    ctx.fillStyle='#ff0000';
+    ctx.fillRect(z.x,z.y-7,z.w,4);
+    ctx.fillStyle='#00ff00';
+    ctx.fillRect(z.x,z.y-7,z.w*(z.can/z.canMax),4);
+  });
+
+  // Mermiler
+  mermiler.forEach(m=>{
+    ctx.fillStyle=m.renk;
+    ctx.beginPath();
+    ctx.arc(m.x,m.y,m.r,0,Math.PI*2);
+    ctx.fill();
+    if(m.tip==='bomba'){
+      ctx.strokeStyle='#ff4400';
+      ctx.lineWidth=2;
+      ctx.stroke();
+    }
+  });
+
+  // Patlamalar
+  patlamalar.forEach(p=>{
+    ctx.fillStyle='rgba(255,150,0,0.3)';
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle='rgba(255,80,0,0.6)';
+    ctx.lineWidth=2;
+    ctx.stroke();
+  });
+
+  // Altınlar
+  altinlar.forEach(a=>{
+    ctx.font='16px Arial';
+    ctx.textAlign='center';
+    ctx.fillText('💰',a.x,a.y);
+    ctx.fillStyle='#ffdd00';
+    ctx.font='bold 11px Arial';
+    ctx.fillText('+'+10,a.x,a.y-14);
+  });
+
+  // Oyuncu
+  let oyuncuEmoji=silahSev===0?'🧑':silahSev===1?'💪':'🦾';
+  if(oyuncu.barikatArka){
+    ctx.globalAlpha=0.6;
+  }
+  ctx.font='28px Arial';
+  ctx.textAlign='center';
+  ctx.fillText(oyuncuEmoji,oyuncu.x+oyuncu.w/2,oyuncu.y+oyuncu.h);
+  ctx.globalAlpha=1;
+
+  // Silah göstergesi
+  let silahEmoji=silahSev===0?'🔫':silahSev===1?'💥':'🔥';
+  ctx.font='16px Arial';
+  ctx.fillText(silahEmoji,oyuncu.x+oyuncu.w/2+(oyuncu.yon*18),oyuncu.y+20);
+
+  // Dalga yazısı
+  ctx.fillStyle='rgba(0,200,255,0.15)';
+  ctx.font='bold 80px Arial';
+  ctx.textAlign='center';
+  ctx.fillText('DALGA '+dalga,W/2,H/2+20);
+}
+
+function bitis(){
+  oyunBitti=true;
+  ctx.fillStyle='rgba(0,0,0,0.75)';
+  ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#ff4444';
+  ctx.font='bold 44px Arial';
+  ctx.textAlign='center';
+  ctx.fillText('OYUN BİTTİ!',W/2,H/2-40);
+  ctx.fillStyle='#ffdd00';
+  ctx.font='24px Arial';
+  ctx.fillText('Skor: '+skor,W/2,H/2+10);
+  ctx.fillText('Dalga: '+dalga,W/2,H/2+44);
+  document.getElementById('yenidenBtn').style.display='inline-block';
+}
+
+baslat();
+</script>
+</body>
+</html>
