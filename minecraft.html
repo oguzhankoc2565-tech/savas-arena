@@ -2,634 +2,517 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zombi Baskını</title>
+  <title>Mini Minecraft</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;}
-    body{background:#0a0a0a;display:flex;flex-direction:column;align-items:center;font-family:Arial,sans-serif;color:#fff;padding:8px;}
-    h1{color:#00ff88;font-size:22px;margin-bottom:6px;text-shadow:0 0 10px #00ff88;}
-    #bilgi{display:flex;gap:16px;margin-bottom:6px;font-size:13px;font-weight:bold;flex-wrap:wrap;justify-content:center;}
-    canvas{border:3px solid #00ff88;border-radius:8px;cursor:crosshair;}
-    #panel{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;justify-content:center;}
-    .btn{padding:5px 12px;border:2px solid #444;border-radius:12px;background:#1a1a1a;color:#fff;font-size:11px;cursor:pointer;transition:all 0.2s;}
-    .btn:hover{border-color:#00ff88;color:#00ff88;}
-    .btn.aktif{border-color:#00ff88;background:#00ff8822;color:#00ff88;}
-    .btn.upgrade{border-color:#ffaa00;color:#ffaa00;}
-    .btn.upgrade:hover{background:#ffaa0022;}
-    #mesaj{margin-top:6px;font-size:12px;color:#888;text-align:center;}
-    #yenidenBtn{display:none;margin-top:10px;padding:10px 28px;background:#00ff88;color:#000;border:none;border-radius:20px;font-size:15px;font-weight:bold;cursor:pointer;}
-    #geriBtn{margin-top:6px;padding:5px 18px;background:transparent;color:#888;border:1px solid #333;border-radius:14px;font-size:12px;cursor:pointer;}
-    #silahPanel{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;justify-content:center;}
-    .silah-btn{padding:5px 10px;border:2px solid #333;border-radius:10px;background:#111;color:#aaa;font-size:11px;cursor:pointer;}
-    .silah-btn.aktif{border-color:#ffdd00;color:#ffdd00;}
-    #askerPanel{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;justify-content:center;}
-    .asker-btn{padding:5px 10px;border:2px solid #333;border-radius:10px;background:#111;color:#aaa;font-size:11px;cursor:pointer;}
-    .asker-btn:hover{border-color:#00ccff;color:#00ccff;}
+    body{background:#000;overflow:hidden;font-family:Arial,sans-serif;}
+    #cvs{display:block;}
+    #ui{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;}
+    #nişan{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:24px;text-shadow:1px 1px 2px #000;}
+    #bilgi{position:absolute;top:10px;left:10px;color:#fff;font-size:13px;text-shadow:1px 1px 2px #000;line-height:1.8;}
+    #can{position:absolute;bottom:60px;left:50%;transform:translateX(-50%);display:flex;gap:4px;}
+    .kalp{font-size:20px;}
+    #envanter{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:4px;}
+    .slot{width:50px;height:50px;background:rgba(0,0,0,0.6);border:2px solid #888;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:22px;}
+    .slot.aktif{border-color:#fff;}
+    #mesaj{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.8);color:#fff;padding:20px 40px;border-radius:12px;font-size:18px;text-align:center;display:none;}
+    #mesaj button{margin-top:12px;padding:8px 24px;background:#4a4;color:#fff;border:none;border-radius:8px;font-size:15px;cursor:pointer;pointer-events:all;}
+    #tiklaBasi{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;font-size:22px;cursor:pointer;}
+    #tiklaBasi h2{font-size:36px;color:#4f4;margin-bottom:12px;}
+    #tiklaBasi p{font-size:14px;color:#aaa;margin-top:8px;}
+    #gunDurum{position:absolute;top:10px;right:10px;color:#fff;font-size:13px;text-shadow:1px 1px 2px #000;}
   </style>
 </head>
 <body>
-<h1>🧟 ZOMBİ BASKINI</h1>
-<div id="bilgi">
-  <span>❤️ <span id="canEl">5</span></span>
-  <span>⭐ <span id="skorEl">0</span></span>
-  <span>🌊 <span id="dalgaEl">1</span></span>
-  <span>💰 <span id="paraEl">150</span></span>
-  <span id="silahGoster" style="color:#ffdd00">🔫 Tabanca Lv1</span>
+<canvas id="cvs"></canvas>
+<div id="ui">
+  <div id="nişan">+</div>
+  <div id="bilgi">
+    <div>⛏️ <span id="blokAd">Toprak</span></div>
+    <div>📍 X:<span id="px">0</span> Y:<span id="py">0</span> Z:<span id="pz">0</span></div>
+    <div>🧟 Zombi: <span id="zombiSay">0</span></div>
+  </div>
+  <div id="gunDurum">🌞 <span id="gunEl">Gündüz</span></div>
+  <div id="can"></div>
+  <div id="envanter">
+    <div class="slot aktif" id="slot0">🟫</div>
+    <div class="slot" id="slot1">⬜</div>
+    <div class="slot" id="slot2">🟩</div>
+    <div class="slot" id="slot3">🪵</div>
+    <div class="slot" id="slot4">🟧</div>
+    <div class="slot" id="slot5">💎</div>
+    <div class="slot" id="slot6">🗡️</div>
+    <div class="slot" id="slot7">🏹</div>
+  </div>
+  <div id="mesaj"></div>
+  <div id="tiklaBasi">
+    <h2>🧱 MİNİ MİNECRAFT</h2>
+    <p>Oynamak için tıkla</p>
+    <p style="margin-top:16px;font-size:13px;">
+      WASD: Hareket | SPACE: Zıpla | Fare: Bak<br>
+      Sol Tık: Blok Kır | Sağ Tık: Blok Koy<br>
+      1-8: Blok Seç | E: Envanter | F: Saldır
+    </p>
+  </div>
 </div>
 
-<canvas id="oyun" width="800" height="380"></canvas>
-
-<!-- ANA PANEL -->
-<div id="panel">
-  <button class="btn aktif" id="btnAtes" onclick="sec('ates')">🔫 Ateş</button>
-  <button class="btn" id="btnBarikat" onclick="sec('barikat')">🧱 Barikat 30💰</button>
-  <button class="btn" id="btnTuzak" onclick="sec('tuzak')">⚡ Tuzak 20💰</button>
-  <button class="btn" id="btnKule" onclick="sec('kule')">🗼 Kule 60💰</button>
-</div>
-
-<!-- SİLAH PANELİ -->
-<div id="silahPanel">
-  <span style="color:#ffdd00;font-size:12px;align-self:center;">⚔️ SİLAH:</span>
-  <button class="silah-btn aktif" id="sbTabanca" onclick="silahSec('tabanca')">🔫 Tabanca</button>
-  <button class="silah-btn" id="sbShotgun" onclick="silahSec('shotgun')">💥 Shotgun</button>
-  <button class="silah-btn" id="sbMakineli" onclick="silahSec('makineli')">🔥 Makineli</button>
-  <button class="silah-btn" id="sbSniper" onclick="silahSec('sniper')">🎯 Sniper</button>
-  <button class="silah-btn" id="sbRoket" onclick="silahSec('roket')">🚀 Roket</button>
-  <span style="color:#aaa;font-size:11px;align-self:center;">|</span>
-  <button class="silah-btn" id="sbKilic" onclick="silahSec('kilic')">⚔️ Kılıç</button>
-  <button class="silah-btn" id="sbBalta" onclick="silahSec('balta')">🪓 Balta</button>
-  <button class="silah-btn" id="sbSihir" onclick="silahSec('sihir')">🔮 Sihir</button>
-  <button class="silah-btn" id="sbLazer" onclick="silahSec('lazer')">⚡ Lazer</button>
-</div>
-
-<!-- ASKER PANELİ -->
-<div id="askerPanel">
-  <span style="color:#00ccff;font-size:12px;align-self:center;">🪖 ASKER:</span>
-  <button class="asker-btn" onclick="sec('asker')">🪖 Asker 50💰</button>
-  <button class="asker-btn" onclick="sec('cavus')">⭐ Çavuş 80💰</button>
-  <button class="asker-btn" onclick="sec('subay')">🎖️ Subay 120💰</button>
-  <button class="asker-btn" onclick="sec('general')">👑 General 200💰</button>
-  <span style="color:#aaa;font-size:11px;align-self:center;">|</span>
-  <button class="asker-btn" onclick="sec('okcu')">🏹 Okçu 60💰</button>
-  <button class="asker-btn" onclick="sec('nisanci')">🎯 Nişancı 100💰</button>
-  <button class="asker-btn" onclick="sec('bombaci')">💣 Bombacı 120💰</button>
-  <button class="asker-btn" onclick="sec('roketci')">🚀 Roketçi 180💰</button>
-</div>
-
-<!-- YÜKSELTME PANELİ -->
-<div id="panel" style="margin-top:4px;">
-  <button class="btn upgrade" onclick="silahYukselt()">⬆️ Silah Yükselt</button>
-  <button class="btn upgrade" onclick="duvarYukselt()">⬆️ Duvar Güçlendir 40💰</button>
-  <button class="btn upgrade" onclick="askerleriYukselt()">⬆️ Askerleri Güçlendir 60💰</button>
-</div>
-
-<div id="mesaj">← → hareket | W zıpla | SPACE ateş | Araç seç → haritaya tıkla</div>
-<button id="yenidenBtn" onclick="baslat()">🔄 Yeniden Oyna</button>
-<button id="geriBtn" onclick="window.location.href='index.html'">← Ana Sayfa</button>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-const canvas=document.getElementById('oyun');
-const ctx=canvas.getContext('2d');
-const W=800,H=380,ZEMIN=H-55,G=0.55;
+// === SAHNE KURULUM ===
+const cvs = document.getElementById('cvs');
+cvs.width = window.innerWidth;
+cvs.height = window.innerHeight;
 
-// === SİLAH SİSTEMİ ===
-const SILAHLAR={
-  tabanca:{ad:'Tabanca',emoji:'🔫',hasar:1,hiz:15,sayi:1,renk:'#ffdd00',menzil:W,tip:'ates',maliyet:0,seviye:1},
-  shotgun: {ad:'Shotgun', emoji:'💥',hasar:2,hiz:25,sayi:5,renk:'#ff8800',menzil:300,tip:'ates',maliyet:80,seviye:1},
-  makineli:{ad:'Makineli',emoji:'🔥',hasar:1,hiz:4, sayi:1,renk:'#ff4444',menzil:W,  tip:'ates',maliyet:150,seviye:1},
-  sniper:  {ad:'Sniper',  emoji:'🎯',hasar:5,hiz:40,sayi:1,renk:'#00ccff',menzil:W,  tip:'ates',maliyet:200,seviye:1},
-  roket:   {ad:'Roket',   emoji:'🚀',hasar:8,hiz:60,sayi:1,renk:'#ff0000',menzil:W,  tip:'ates',maliyet:300,seviye:1},
-  kilic:   {ad:'Kılıç',   emoji:'⚔️',hasar:3,hiz:20,sayi:1,renk:'#aaaaaa',menzil:80, tip:'yakin',maliyet:100,seviye:1},
-  balta:   {ad:'Balta',   emoji:'🪓',hasar:4,hiz:25,sayi:1,renk:'#8B4513',menzil:90, tip:'yakin',maliyet:150,seviye:1},
-  sihir:   {ad:'Sihir',   emoji:'🔮',hasar:3,hiz:18,sayi:3,renk:'#ff00ff',menzil:200,tip:'ates',maliyet:200,seviye:1},
-  lazer:   {ad:'Lazer',   emoji:'⚡',hasar:6,hiz:8, sayi:1,renk:'#00ff00',menzil:W,  tip:'ates',maliyet:350,seviye:1}
+const renderer = new THREE.WebGLRenderer({canvas: cvs, antialias: true});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x87ceeb, 0.02);
+
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 200);
+camera.position.set(8, 20, 8);
+
+window.addEventListener('resize', ()=>{
+  cvs.width = window.innerWidth; cvs.height = window.innerHeight;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+});
+
+// === IŞIK ===
+const ambLight = new THREE.AmbientLight(0xffffff, 0.4);
+scene.add(ambLight);
+const sunLight = new THREE.DirectionalLight(0xffffff, 1.0);
+sunLight.position.set(50, 100, 50);
+sunLight.castShadow = true;
+sunLight.shadow.mapSize.width = 1024;
+sunLight.shadow.mapSize.height = 1024;
+scene.add(sunLight);
+
+// === BLOK TİPLERİ ===
+const BLOKLAR = {
+  toprak: { renk: 0x8B4513, emoji: '🟫', sertlik: 1 },
+  tas:    { renk: 0x888888, emoji: '⬜', sertlik: 2 },
+  cimen:  { renk: 0x228B22, emoji: '🟩', sertlik: 1 },
+  agac:   { renk: 0x8B6914, emoji: '🪵', sertlik: 1 },
+  turuncu:{ renk: 0xFF6600, emoji: '🟧', sertlik: 1 },
+  elmas:  { renk: 0x00FFFF, emoji: '💎', sertlik: 3 },
+  kum:    { renk: 0xF4D03F, emoji: '🟨', sertlik: 1 },
+  kar:    { renk: 0xFFFFFF, emoji: '⬜', sertlik: 1 }
 };
 
-// === ZOMBİ TİPLERİ ===
-const ZOMBİTİPLER={
-  normal: {ad:'Normal',emoji:'🧟',renk:'#2d5a1b',hizCok:1.0,canCok:1,hasar:1,altin:10,w:28,h:40,ozellik:'yok'},
-  hizli:  {ad:'Hızlı', emoji:'💨',renk:'#00aa44',hizCok:2.5,canCok:0.5,hasar:1,altin:15,w:22,h:36,ozellik:'hizli'},
-  dev:    {ad:'Dev',   emoji:'👹',renk:'#8B0000',hizCok:0.5,canCok:4,hasar:3,altin:40,w:50,h:60,ozellik:'dev'},
-  zirh:   {ad:'Zırhlı',emoji:'🛡️',renk:'#444',  hizCok:0.7,canCok:3,hasar:2,altin:30,w:32,h:44,ozellik:'zirh'},
-  patlayan:{ad:'Patlayan',emoji:'💥',renk:'#ff6600',hizCok:1.2,canCok:1,hasar:4,altin:20,w:26,h:38,ozellik:'patlayan'},
-  okcu:   {ad:'Okçu', emoji:'🏹',renk:'#556B2F',hizCok:0.6,canCok:1,hasar:2,altin:25,w:26,h:38,ozellik:'okcu'}
-};
+const blokSirasi = ['toprak','tas','cimen','agac','turuncu','elmas'];
+let seciliSlot = 0;
 
-// === ASKER TİPLERİ ===
-const ASKERTİPLER={
-  asker:  {ad:'Asker',  emoji:'🪖',hasar:1,hiz:60, menzil:150,maliyet:50, seviye:1,renk:'#4488ff'},
-  cavus:  {ad:'Çavuş',  emoji:'⭐',hasar:2,hiz:45, menzil:180,maliyet:80, seviye:1,renk:'#44aaff'},
-  subay:  {ad:'Subay',  emoji:'🎖️',hasar:3,hiz:35, menzil:220,maliyet:120,seviye:1,renk:'#4466ff'},
-  general:{ad:'General',emoji:'👑',hasar:5,hiz:25, menzil:300,maliyet:200,seviye:1,renk:'#ff8800'},
-  okcu:   {ad:'Okçu',   emoji:'🏹',hasar:2,hiz:50, menzil:250,maliyet:60, seviye:1,renk:'#88ff44'},
-  nisanci:{ad:'Nişancı',emoji:'🎯',hasar:6,hiz:80, menzil:400,maliyet:100,seviye:1,renk:'#ff4444'},
-  bombaci:{ad:'Bombacı',emoji:'💣',hasar:8,hiz:120,menzil:200,maliyet:120,seviye:1,renk:'#ffaa00'},
-  roketci:{ad:'Roketçi',emoji:'🚀',hasar:12,hiz:150,menzil:350,maliyet:180,seviye:1,renk:'#ff0000'}
-};
+// === DÜNYA ===
+const blokMesh = new Map();
+const blokData = new Map();
 
-let oyuncu,zombiler,mermiler,barikatlar,tuzaklar,kuleler,askerObjeler;
-let bombaMermi,patlamalar,altinlar,dusmanMermi;
-let skor,can,dalga,para,oyunBitti,frameNo,seciliArac,atisZamani;
-let seciliSilah='tabanca',duvarSev=0,askerSev=0;
-let tuslar={};
+function blokKey(x,y,z){ return `${x},${y},${z}`; }
 
-function baslat(){
-  oyuncu={x:80,y:ZEMIN-44,vy:0,yerde:true,w:28,h:44,hiz:4,yon:1,barikatArka:false};
-  zombiler=[];mermiler=[];barikatlar=[
-    {x:180,y:ZEMIN-56,w:40,h:56,can:200,canMax:200},
-    {x:480,y:ZEMIN-56,w:40,h:56,can:200,canMax:200}
-  ];
-  tuzaklar=[];kuleler=[];askerObjeler=[];
-  bombaMermi=[];patlamalar=[];altinlar=[];dusmanMermi=[];
-  skor=0;can=5;dalga=1;para=150;oyunBitti=false;frameNo=0;
-  atisZamani=0;seciliArac='ates';
-  document.getElementById('yenidenBtn').style.display='none';
-  guncelle_bilgi();
-  sec('ates');
-  zombiUret();
-  requestAnimationFrame(dongu);
+function blokMat(tip){
+  return new THREE.MeshLambertMaterial({color: BLOKLAR[tip].renk});
 }
 
-function guncelle_bilgi(){
-  document.getElementById('canEl').textContent=can;
-  document.getElementById('skorEl').textContent=skor;
-  document.getElementById('dalgaEl').textContent=dalga;
-  document.getElementById('paraEl').textContent=para;
-  let s=SILAHLAR[seciliSilah];
-  document.getElementById('silahGoster').textContent=s.emoji+' '+s.ad+' Lv'+s.seviye;
+const blokGeo = new THREE.BoxGeometry(1,1,1);
+
+function blokEkle(x,y,z,tip){
+  let key = blokKey(x,y,z);
+  if(blokMesh.has(key)) return;
+  let mat = blokMat(tip);
+  // Kenar çizgisi
+  let mesh = new THREE.Mesh(blokGeo, mat);
+  mesh.position.set(x+0.5, y+0.5, z+0.5);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  scene.add(mesh);
+  blokMesh.set(key, mesh);
+  blokData.set(key, {tip, sertlik: BLOKLAR[tip].sertlik});
+
+  // Kenar
+  let edges = new THREE.EdgesGeometry(blokGeo);
+  let line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({color:0x000000, transparent:true, opacity:0.3}));
+  line.position.copy(mesh.position);
+  scene.add(line);
 }
 
-function sec(arac){
-  seciliArac=arac;
-  ['ates','barikat','tuzak','kule','asker','cavus','subay','general','okcu','nisanci','bombaci','roketci'].forEach(a=>{
-    let el=document.getElementById('btn'+a.charAt(0).toUpperCase()+a.slice(1));
-    if(el)el.classList.toggle('aktif',a===arac);
-  });
+function blokSil(x,y,z){
+  let key = blokKey(x,y,z);
+  let mesh = blokMesh.get(key);
+  if(mesh){ scene.remove(mesh); blokMesh.delete(key); blokData.delete(key); }
 }
 
-function silahSec(s){
-  if(!SILAHLAR[s])return;
-  let sil=SILAHLAR[s];
-  if(sil.maliyet>0&&sil.seviye===1&&para<sil.maliyet){alert('Yeterli altın yok! Lazım: '+sil.maliyet+'💰');return;}
-  if(sil.maliyet>0&&sil.seviye===1){para-=sil.maliyet;guncelle_bilgi();}
-  seciliSilah=s;
-  document.querySelectorAll('.silah-btn').forEach(b=>b.classList.remove('aktif'));
-  document.getElementById('sb'+s.charAt(0).toUpperCase()+s.slice(1)).classList.add('aktif');
-  guncelle_bilgi();
+function blokVar(x,y,z){
+  return blokData.has(blokKey(Math.floor(x),Math.floor(y),Math.floor(z)));
 }
 
-function silahYukselt(){
-  let s=SILAHLAR[seciliSilah];
-  let maliyet=s.seviye*100;
-  if(para<maliyet){alert('Lazım: '+maliyet+'💰');return;}
-  para-=maliyet;s.seviye++;
-  s.hasar=Math.ceil(s.hasar*1.5);
-  s.hiz=Math.max(3,Math.floor(s.hiz*0.85));
-  alert(s.ad+' Lv'+s.seviye+' oldu! Hasar: '+s.hasar);
-  guncelle_bilgi();
-}
+// === DÜNYA OLUŞTUR ===
+function dunyaOlustur(){
+  let W=20, D=20;
+  for(let x=0;x<W;x++){
+    for(let z=0;z<D;z++){
+      // Temel zemin
+      let yukseklik = Math.floor(Math.sin(x*0.4)*2 + Math.cos(z*0.3)*2 + 5);
+      // Çimen üst katman
+      blokEkle(x, yukseklik, z, 'cimen');
+      // Toprak orta
+      for(let y=yukseklik-1; y>=yukseklik-3; y--) blokEkle(x,y,z,'toprak');
+      // Taş alt
+      for(let y=yukseklik-4; y>=0; y--) blokEkle(x,y,z,'tas');
 
-function duvarYukselt(){
-  if(para<40){alert('Yeterli altın yok!');return;}
-  para-=40;duvarSev=Math.min(2,duvarSev+1);
-  barikatlar.forEach(b=>{b.canMax=200+duvarSev*150;b.can=b.canMax;});
-  guncelle_bilgi();
-}
+      // Rastgele ağaçlar
+      if(Math.random()<0.05 && x>1 && x<W-1 && z>1 && z<D-1){
+        let ay = yukseklik+1;
+        for(let i=0;i<4;i++) blokEkle(x,ay+i,z,'agac');
+        // Yapraklar
+        for(let lx=-2;lx<=2;lx++) for(let lz=-2;lz<=2;lz++) for(let ly=0;ly<2;ly++){
+          if(Math.abs(lx)+Math.abs(lz)+Math.abs(ly)<4) blokEkle(x+lx,ay+3+ly,z+lz,'cimen');
+        }
+      }
 
-function askerleriYukselt(){
-  if(para<60){alert('Yeterli altın yok!');return;}
-  para-=60;askerSev++;
-  askerObjeler.forEach(a=>{a.hasar+=2;a.menzil+=50;});
-  alert('Tüm askerler güçlendi! Seviye: '+(askerSev+1));
-  guncelle_bilgi();
-}
-
-function zombiUret(){
-  let sayi=5+dalga*2;
-  for(let i=0;i<sayi;i++){
-    setTimeout(()=>{
-      if(oyunBitti)return;
-      let soldan=Math.random()<0.5;
-      // Dalga seviyesine göre tip seç
-      let tipler=['normal'];
-      if(dalga>=2)tipler.push('hizli');
-      if(dalga>=3)tipler.push('zirh');
-      if(dalga>=4)tipler.push('patlayan');
-      if(dalga>=5)tipler.push('dev');
-      if(dalga>=6)tipler.push('okcu');
-      let tipAd=tipler[Math.floor(Math.random()*tipler.length)];
-      let tip=ZOMBİTİPLER[tipAd];
-      zombiler.push({
-        x:soldan?-50:W+50,
-        y:ZEMIN-tip.h,
-        w:tip.w,h:tip.h,
-        hiz:(0.8+dalga*0.15)*tip.hizCok*(soldan?1:-1),
-        can:(2+dalga)*tip.canCok,
-        canMax:(2+dalga)*tip.canCok,
-        tip:tipAd,hasar:tip.hasar,
-        altin:tip.altin,emoji:tip.emoji,
-        renk:tip.renk,soldan,
-        atisZamani:0,patladi:false,
-        canTitreme:0
-      });
-    },i*800);
+      // Rastgele elmas (derin)
+      if(Math.random()<0.02) blokEkle(x,1,z,'elmas');
+    }
   }
 }
 
-canvas.addEventListener('click',e=>{
-  if(oyunBitti)return;
-  let r=canvas.getBoundingClientRect();
-  let mx=e.clientX-r.left,my=e.clientY-r.top;
-  let sev=duvarSev;
-  let canMax=200+sev*150;
+dunyaOlustur();
 
-  if(seciliArac==='barikat'&&para>=30){
-    para-=30;
-    barikatlar.push({x:mx-20,y:ZEMIN-56,w:40,h:56,can:canMax,canMax});
-    guncelle_bilgi();
-  } else if(seciliArac==='tuzak'&&para>=20){
-    para-=20;
-    tuzaklar.push({x:mx-24,y:ZEMIN-8,w:48,h:8,aktif:true,bekleme:0});
-    guncelle_bilgi();
-  } else if(seciliArac==='kule'&&para>=60){
-    para-=60;
-    kuleler.push({x:mx-16,y:ZEMIN-90,w:32,h:90,atisZamani:0,seviye:1});
-    guncelle_bilgi();
-  } else {
-    // Asker tipleri
-    let askerTipler={asker:50,cavus:80,subay:120,general:200,okcu:60,nisanci:100,bombaci:120,roketci:180};
-    if(askerTipler[seciliArac]&&para>=askerTipler[seciliArac]){
-      para-=askerTipler[seciliArac];
-      let tip=ASKERTİPLER[seciliArac];
-      askerObjeler.push({
-        x:mx-14,y:ZEMIN-44,w:28,h:44,
-        atisZamani:0,tip:seciliArac,
-        hasar:tip.hasar+askerSev*2,
-        hiz:tip.hiz,menzil:tip.menzil+askerSev*50,
-        emoji:tip.emoji,renk:tip.renk,seviye:1+askerSev
-      });
-      guncelle_bilgi();
+// === OYUNCU ===
+const oyuncu = {
+  pos: new THREE.Vector3(10, 12, 10),
+  vel: new THREE.Vector3(),
+  yerde: false,
+  can: 10,
+  maxCan: 10,
+  pitch: 0,
+  yaw: 0,
+  hiz: 0.12,
+  zipsGuc: 0.3,
+  saldiriZamani: 0
+};
+
+camera.position.copy(oyuncu.pos);
+
+// === FARE KONTROLÜ ===
+let fareKilitli = false;
+document.getElementById('tiklaBasi').addEventListener('click', ()=>{
+  cvs.requestPointerLock();
+});
+
+document.addEventListener('pointerlockchange', ()=>{
+  fareKilitli = document.pointerLockElement === cvs;
+  document.getElementById('tiklaBasi').style.display = fareKilitli ? 'none' : 'flex';
+});
+
+document.addEventListener('mousemove', e=>{
+  if(!fareKilitli) return;
+  oyuncu.yaw   -= e.movementX * 0.002;
+  oyuncu.pitch -= e.movementY * 0.002;
+  oyuncu.pitch  = Math.max(-Math.PI/2+0.01, Math.min(Math.PI/2-0.01, oyuncu.pitch));
+});
+
+// === KLAVYE ===
+const tuslar = {};
+document.addEventListener('keydown', e=>{ tuslar[e.code]=true;
+  if(e.code==='Space'){ e.preventDefault(); if(oyuncu.yerde){ oyuncu.vel.y=oyuncu.zipsGuc; oyuncu.yerde=false; }}
+  if(e.code==='KeyF') saldir();
+  // Slot seçimi
+  for(let i=1;i<=8;i++) if(e.code===`Digit${i}`){ slotSec(i-1); }
+});
+document.addEventListener('keyup',  e=>{ tuslar[e.code]=false; });
+
+function slotSec(i){
+  document.getElementById(`slot${seciliSlot}`).classList.remove('aktif');
+  seciliSlot = i;
+  document.getElementById(`slot${seciliSlot}`).classList.add('aktif');
+  let tip = blokSirasi[seciliSlot] || 'toprak';
+  document.getElementById('blokAd').textContent = tip.charAt(0).toUpperCase()+tip.slice(1);
+}
+
+// === RAYCASTER (Blok seçimi) ===
+const raycaster = new THREE.Raycaster();
+const merkez = new THREE.Vector2(0,0);
+
+function hedefBlokBul(){
+  raycaster.setFromCamera(merkez, camera);
+  let meshler = [...blokMesh.values()];
+  let kesisimler = raycaster.intersectObjects(meshler);
+  if(kesisimler.length>0 && kesisimler[0].distance<6){
+    return kesisimler[0];
+  }
+  return null;
+}
+
+// Blok kır
+document.addEventListener('mousedown', e=>{
+  if(!fareKilitli) return;
+  let hit = hedefBlokBul();
+  if(!hit) return;
+  let p = hit.object.position;
+  let x=Math.floor(p.x), y=Math.floor(p.y), z=Math.floor(p.z);
+
+  if(e.button===0){
+    // Sol tık - kır
+    blokSil(x,y,z);
+    parcacikEfekti(p.x, p.y, p.z);
+  } else if(e.button===2){
+    // Sağ tık - yerleştir
+    let n = hit.face.normal;
+    let nx=x+Math.round(n.x), ny=y+Math.round(n.y), nz=z+Math.round(n.z);
+    // Oyuncuyla çakışma kontrolü
+    let op = oyuncu.pos;
+    if(!(nx===Math.floor(op.x) && nz===Math.floor(op.z) && (ny===Math.floor(op.y) || ny===Math.floor(op.y)-1))){
+      let tip = blokSirasi[seciliSlot] || 'toprak';
+      blokEkle(nx, ny, nz, tip);
     }
   }
 });
 
-document.addEventListener('keydown',e=>{
-  tuslar[e.code]=true;
-  if(e.code==='Space'){e.preventDefault();oyuncuAtes();}
-  if((e.code==='ArrowUp'||e.code==='KeyW')&&oyuncu.yerde){oyuncu.vy=-13;oyuncu.yerde=false;}
-});
-document.addEventListener('keyup',e=>tuslar[e.code]=false);
+document.addEventListener('contextmenu', e=>e.preventDefault());
 
-function oyuncuAtes(){
-  let s=SILAHLAR[seciliSilah];
-  if(frameNo-atisZamani<s.hiz)return;
-  atisZamani=frameNo;
+// === PARÇACİK EFEKTİ ===
+const parcaciklar = [];
+function parcacikEfekti(x,y,z){
+  for(let i=0;i<8;i++){
+    let geo = new THREE.BoxGeometry(0.15,0.15,0.15);
+    let mat = new THREE.MeshBasicMaterial({color: Math.random()*0xffffff});
+    let p = new THREE.Mesh(geo, mat);
+    p.position.set(x,y,z);
+    p.vel = new THREE.Vector3((Math.random()-0.5)*0.2,(Math.random()*0.2),(Math.random()-0.5)*0.2);
+    p.life = 30;
+    scene.add(p);
+    parcaciklar.push(p);
+  }
+}
 
-  if(s.tip==='yakin'){
-    // Yakın dövüş
-    zombiler.forEach((z,zi)=>{
-      let dx=Math.abs((z.x+z.w/2)-(oyuncu.x+oyuncu.w/2));
-      if(dx<s.menzil){
-        z.can-=s.hasar;
-        patlamalar.push({x:z.x+z.w/2,y:z.y,r:30,renk:'#ff0000'});
-        if(z.can<=0)zombiOl(zi,z);
+// === ZOMBİLER ===
+const zombiler = [];
+const zombiGeo = new THREE.BoxGeometry(0.8, 1.8, 0.8);
+
+function zombiOlustur(){
+  let mat = new THREE.MeshLambertMaterial({color: 0x2d5a1b});
+  let z = new THREE.Mesh(zombiGeo, mat);
+  // Rastgele konum
+  let x = Math.random()*18+1, zz = Math.random()*18+1;
+  let y = 15;
+  z.position.set(x, y, zz);
+  z.castShadow = true;
+  scene.add(z);
+
+  // Gözler
+  let gozGeo = new THREE.BoxGeometry(0.2,0.2,0.1);
+  let gozMat = new THREE.MeshBasicMaterial({color:0xff0000});
+  let goz1 = new THREE.Mesh(gozGeo,gozMat);
+  let goz2 = new THREE.Mesh(gozGeo,gozMat);
+  goz1.position.set(-0.2,0.5,0.45);
+  goz2.position.set(0.2,0.5,0.45);
+  z.add(goz1); z.add(goz2);
+
+  zombiler.push({mesh:z, can:5, hiz:0.03, saldiriZamani:0, vel:new THREE.Vector3()});
+  document.getElementById('zombiSay').textContent = zombiler.length;
+}
+
+// Her 8 saniyede zombi üret
+setInterval(()=>{ if(zombiler.length<8) zombiOlustur(); }, 8000);
+// İlk zombiler
+setTimeout(()=>zombiOlustur(), 2000);
+setTimeout(()=>zombiOlustur(), 5000);
+
+function saldir(){
+  oyuncu.saldiriZamani = Date.now();
+  zombiler.forEach((z,i)=>{
+    let d = z.mesh.position.distanceTo(oyuncu.pos);
+    if(d<3){
+      z.can--;
+      if(z.can<=0){
+        scene.remove(z.mesh);
+        zombiler.splice(i,1);
+        document.getElementById('zombiSay').textContent=zombiler.length;
+        parcacikEfekti(z.mesh.position.x,z.mesh.position.y,z.mesh.position.z);
       }
-    });
-    patlamalar.push({x:oyuncu.x+oyuncu.w/2+oyuncu.yon*40,y:oyuncu.y+20,r:20,renk:'#aaaaaa'});
-  } else {
-    // Ateşli silah
-    if(s.sayi===1){
-      mermiler.push({x:oyuncu.x+(oyuncu.yon>0?oyuncu.w:0),y:oyuncu.y+16,vx:12*oyuncu.yon,vy:0,r:s.tip==='lazer'?4:5,hasar:s.hasar,renk:s.renk,tip:seciliSilah});
+    }
+  });
+}
+
+// === CAN BAR ===
+function canGuncelle(){
+  let canDiv = document.getElementById('can');
+  canDiv.innerHTML = '';
+  for(let i=0;i<oyuncu.maxCan;i++){
+    let k = document.createElement('span');
+    k.className='kalp';
+    k.textContent = i<oyuncu.can ? '❤️' : '🖤';
+    canDiv.appendChild(k);
+  }
+}
+canGuncelle();
+
+// === GÜN/GECE DÖNGÜSÜ ===
+let gunZamani = 0;
+let gece = false;
+
+// === ÇARPIŞMA ===
+function yerdeMi(pos){
+  let x=Math.floor(pos.x), z=Math.floor(pos.z);
+  let y=Math.floor(pos.y-0.1);
+  return blokVar(x,y,z) || blokVar(x-1,y,z) || blokVar(x,y,z-1) || blokVar(x-1,y,z-1);
+}
+
+function duvardaMi(pos){
+  let x=Math.floor(pos.x), z=Math.floor(pos.z), y=Math.floor(pos.y);
+  return blokVar(x,y,z) || blokVar(x,y+1,z);
+}
+
+// === ANA DÖNGÜ ===
+const saat = new THREE.Clock();
+
+function animate(){
+  requestAnimationFrame(animate);
+  let dt = saat.getDelta();
+
+  if(fareKilitli){
+    // Kamera yönü
+    let dir = new THREE.Vector3();
+    dir.x = Math.sin(oyuncu.yaw)*Math.cos(oyuncu.pitch);
+    dir.y = Math.sin(oyuncu.pitch);
+    dir.z = Math.cos(oyuncu.yaw)*Math.cos(oyuncu.pitch);
+    camera.rotation.set(oyuncu.pitch, oyuncu.yaw, 0, 'YXZ');
+
+    // Hareket
+    let ileri = new THREE.Vector3(-Math.sin(oyuncu.yaw), 0, -Math.cos(oyuncu.yaw));
+    let yan   = new THREE.Vector3(Math.cos(oyuncu.yaw), 0, -Math.sin(oyuncu.yaw));
+    let hVel  = new THREE.Vector3();
+
+    if(tuslar['KeyW']) hVel.add(ileri);
+    if(tuslar['KeyS']) hVel.sub(ileri);
+    if(tuslar['KeyA']) hVel.sub(yan);
+    if(tuslar['KeyD']) hVel.add(yan);
+
+    if(hVel.length()>0) hVel.normalize().multiplyScalar(oyuncu.hiz*(oyuncu.yerde?1:0.7));
+
+    // Yerçekimi
+    oyuncu.vel.y -= 0.018;
+    oyuncu.vel.y = Math.max(oyuncu.vel.y, -0.5);
+
+    // Pozisyon güncelle
+    let yeniPos = oyuncu.pos.clone();
+    yeniPos.x += hVel.x + oyuncu.vel.x;
+    yeniPos.z += hVel.z + oyuncu.vel.z;
+
+    // Duvar çarpışma
+    if(duvardaMi(yeniPos)){
+      yeniPos.x = oyuncu.pos.x;
+      yeniPos.z = oyuncu.pos.z;
+    }
+
+    yeniPos.y += oyuncu.vel.y;
+
+    // Zemin çarpışma
+    if(yerdeMi(yeniPos)){
+      if(oyuncu.vel.y<0){ oyuncu.vel.y=0; oyuncu.yerde=true; }
+      while(yerdeMi(yeniPos)) yeniPos.y+=0.05;
     } else {
-      for(let i=0;i<s.sayi;i++){
-        let aci=(i-(s.sayi-1)/2)*0.2;
-        mermiler.push({x:oyuncu.x+(oyuncu.yon>0?oyuncu.w:0),y:oyuncu.y+16,vx:11*oyuncu.yon,vy:Math.sin(aci)*4,r:5,hasar:s.hasar,renk:s.renk,tip:seciliSilah});
-      }
+      oyuncu.yerde = false;
     }
+
+    // Düşme ölümü
+    if(yeniPos.y < -5){ yeniPos.set(10,15,10); oyuncu.vel.set(0,0,0); oyuncu.can--; canGuncelle(); }
+
+    oyuncu.pos.copy(yeniPos);
+    oyuncu.vel.x *= 0.8;
+    oyuncu.vel.z *= 0.8;
+    camera.position.copy(oyuncu.pos);
+    camera.position.y += 0.8; // Göz yüksekliği
+
+    // Pozisyon bilgisi
+    document.getElementById('px').textContent = Math.floor(oyuncu.pos.x);
+    document.getElementById('py').textContent = Math.floor(oyuncu.pos.y);
+    document.getElementById('pz').textContent = Math.floor(oyuncu.pos.z);
+
+    // Zombi AI
+    zombiler.forEach((z,i)=>{
+      let dir = new THREE.Vector3().subVectors(oyuncu.pos, z.mesh.position).normalize();
+      dir.y = 0;
+      z.mesh.position.x += dir.x * z.hiz;
+      z.mesh.position.z += dir.z * z.hiz;
+
+      // Zombi yerçekimi
+      z.vel.y -= 0.015;
+      z.mesh.position.y += z.vel.y;
+      let zy = Math.floor(z.mesh.position.y-0.1);
+      let zx = Math.floor(z.mesh.position.x);
+      let zz2 = Math.floor(z.mesh.position.z);
+      if(blokVar(zx,zy,zz2)){ z.vel.y=0; while(blokVar(zx,Math.floor(z.mesh.position.y-0.1),zz2)) z.mesh.position.y+=0.05; }
+      if(z.mesh.position.y<-5){ scene.remove(z.mesh); zombiler.splice(i,1); document.getElementById('zombiSay').textContent=zombiler.length; return; }
+
+      // Zombi yönü
+      z.mesh.lookAt(oyuncu.pos.x, z.mesh.position.y, oyuncu.pos.z);
+
+      // Oyuncuya saldırı
+      let uzak = z.mesh.position.distanceTo(oyuncu.pos);
+      if(uzak<1.5 && Date.now()-z.saldiriZamani>1500){
+        z.saldiriZamani = Date.now();
+        oyuncu.can = Math.max(0,oyuncu.can-1);
+        canGuncelle();
+        if(oyuncu.can<=0) olum();
+      }
+    });
+
+    // Parçacıklar
+    for(let i=parcaciklar.length-1;i>=0;i--){
+      let p=parcaciklar[i];
+      p.position.add(p.vel);
+      p.vel.y-=0.01;
+      p.life--;
+      if(p.life<=0){ scene.remove(p); parcaciklar.splice(i,1); }
+    }
+
+    // Gün/Gece döngüsü
+    gunZamani += dt*0.02;
+    let gunAci = Math.sin(gunZamani);
+    if(gunAci>0){
+      scene.background = new THREE.Color(0x87ceeb);
+      scene.fog.color.set(0x87ceeb);
+      ambLight.intensity = 0.3+gunAci*0.5;
+      sunLight.intensity = gunAci;
+      gece=false;
+      document.getElementById('gunEl').textContent='Gündüz ☀️';
+    } else {
+      scene.background = new THREE.Color(0x001133);
+      scene.fog.color.set(0x001133);
+      ambLight.intensity = 0.1;
+      sunLight.intensity = 0;
+      gece=true;
+      document.getElementById('gunEl').textContent='Gece 🌙';
+      // Geceleyin zombiler hızlanır
+      zombiler.forEach(z=>z.hiz=0.05);
+    }
+    sunLight.position.set(Math.cos(gunZamani)*100, Math.sin(gunZamani)*100, 50);
   }
+
+  renderer.render(scene, camera);
 }
 
-function dongu(){
-  if(oyunBitti)return;
-  frameNo++;
-  guncelleFizik();
-  ciz();
-  requestAnimationFrame(dongu);
+function olum(){
+  let m = document.getElementById('mesaj');
+  m.style.display='block';
+  m.innerHTML='<p>💀 Öldün!</p><button onclick="yenidenBasla()">Yeniden Başla</button>';
+  document.exitPointerLock();
 }
 
-function guncelleFizik(){
-  // Oyuncu hareket
-  if(tuslar['ArrowLeft']||tuslar['KeyA']){oyuncu.x-=oyuncu.hiz;oyuncu.yon=-1;}
-  if(tuslar['ArrowRight']||tuslar['KeyD']){oyuncu.x+=oyuncu.hiz;oyuncu.yon=1;}
-  oyuncu.x=Math.max(0,Math.min(W-oyuncu.w,oyuncu.x));
-  oyuncu.vy+=G;oyuncu.y+=oyuncu.vy;
-  if(oyuncu.y>=ZEMIN-oyuncu.h){oyuncu.y=ZEMIN-oyuncu.h;oyuncu.vy=0;oyuncu.yerde=true;}
-
-  // Barikat üstüne zıpla
-  barikatlar.forEach(b=>{
-    if(oyuncu.x+oyuncu.w>b.x&&oyuncu.x<b.x+b.w&&oyuncu.y+oyuncu.h>b.y&&oyuncu.y+oyuncu.h<b.y+10&&oyuncu.vy>0){
-      oyuncu.y=b.y-oyuncu.h;oyuncu.vy=0;oyuncu.yerde=true;
-    }
-  });
-
-  oyuncu.barikatArka=barikatlar.some(b=>oyuncu.x+oyuncu.w>b.x-5&&oyuncu.x<b.x+b.w+5);
-
-  // Mermiler
-  mermiler=mermiler.filter(m=>m.x>-20&&m.x<W+20&&m.y>-20&&m.y<H+20);
-  mermiler.forEach(m=>{m.x+=m.vx;m.y+=m.vy;});
-
-  // Düşman mermileri
-  dusmanMermi=dusmanMermi.filter(m=>m.x>-20&&m.x<W+20);
-  dusmanMermi.forEach(m=>{m.x+=m.vx;m.y+=m.vy;});
-
-  // Altınlar
-  altinlar=altinlar.filter(a=>a.bekleme>0);
-  altinlar.forEach(a=>a.bekleme--);
-
-  // Patlamalar
-  patlamalar=patlamalar.filter(p=>p.r>0);
-  patlamalar.forEach(p=>p.r-=1.2);
-
-  // Kule ateşi
-  kuleler.forEach(k=>{
-    if(frameNo-k.atisZamani>60){
-      let enYakin=null,enUzak=Infinity;
-      zombiler.forEach(z=>{let d=Math.abs(z.x-k.x);if(d<enUzak&&d<300){enUzak=d;enYakin=z;}});
-      if(enYakin){
-        k.atisZamani=frameNo;
-        let yon=enYakin.x>k.x?1:-1;
-        mermiler.push({x:k.x+16,y:k.y+20,vx:9*yon,vy:0,r:5,hasar:2*k.seviye,renk:'#00ccff',tip:'kule'});
-      }
-    }
-  });
-
-  // Asker ateşi
-  askerObjeler.forEach(a=>{
-    if(frameNo-a.atisZamani>a.hiz){
-      let enYakin=null,enUzak=Infinity;
-      zombiler.forEach(z=>{let d=Math.abs(z.x-a.x);if(d<enUzak&&d<a.menzil){enUzak=d;enYakin=z;}});
-      if(enYakin){
-        a.atisZamani=frameNo;
-        let yon=enYakin.x>a.x?1:-1;
-        let tip=a.tip==='bombaci'||a.tip==='roketci'?'bomba':'askerMermi';
-        mermiler.push({x:a.x+14,y:a.y+16,vx:9*yon,vy:a.tip==='bombaci'||a.tip==='roketci'?-2:0,r:a.tip==='roketci'?8:5,hasar:a.hasar,renk:a.renk,tip});
-      }
-    }
-  });
-
-  // Mermi - zombi çarpışma
-  mermiler.forEach((m,mi)=>{
-    zombiler.forEach((z,zi)=>{
-      if(m.x>z.x&&m.x<z.x+z.w&&m.y>z.y&&m.y<z.y+z.h){
-        // Zırhlı zombi direnci
-        let gercekHasar=z.tip==='zirh'?Math.max(1,m.hasar-1):m.hasar;
-        z.can-=gercekHasar;
-        if(m.tip==='bomba'||m.tip==='roket'){
-          // Patlama hasarı
-          zombiler.forEach((z2,zi2)=>{
-            let dx=z2.x-m.x;
-            if(Math.abs(dx)<80){z2.can-=m.hasar*0.5;if(z2.can<=0)zombiOl(zi2,z2);}
-          });
-          patlamalar.push({x:m.x,y:m.y,r:60,renk:'#ff8800'});
-        }
-        mermiler.splice(mi,1);
-        if(z.can<=0)zombiOl(zi,z);
-      }
-    });
-  });
-
-  // Mermi - barikat (sadece düşman mermisi)
-  dusmanMermi.forEach((m,mi)=>{
-    barikatlar.forEach(b=>{
-      if(m.x>b.x&&m.x<b.x+b.w&&m.y>b.y&&m.y<b.y+b.h){
-        dusmanMermi.splice(mi,1);
-      }
-    });
-    // Oyuncuya çarpma
-    if(m.x>oyuncu.x&&m.x<oyuncu.x+oyuncu.w&&m.y>oyuncu.y&&m.y<oyuncu.y+oyuncu.h){
-      can--;guncelle_bilgi();
-      dusmanMermi.splice(mi,1);
-      if(can<=0)bitis();
-    }
-  });
-
-  // Zombi hareketi
-  zombiler.forEach((z,zi)=>{
-    if(z.canTitreme>0)z.canTitreme--;
-
-    // Barikat engeli - ZOMBİLER BARIKATTEN GEÇEMEZ
-    let engel=false;
-    barikatlar.forEach((b,bi)=>{
-      // Zombi barikata çarptı mı?
-      if(z.x+z.w>b.x&&z.x<b.x+b.w){
-        // Zombi soldan geliyor
-        if(z.hiz>0&&z.x+z.w>b.x&&z.x<b.x){
-          z.x=b.x-z.w;engel=true;
-        }
-        // Zombi sağdan geliyor
-        if(z.hiz<0&&z.x<b.x+b.w&&z.x+z.w>b.x+b.w){
-          z.x=b.x+b.w;engel=true;
-        }
-        if(engel){
-          // Barikata hasar ver
-          b.can-=z.hasar*0.05;
-          if(b.can<=0)barikatlar.splice(bi,1);
-        }
-      }
-    });
-
-    if(!engel)z.x+=z.hiz;
-
-    // Tuzak
-    tuzaklar.forEach(t=>{
-      if(t.aktif&&z.x+z.w>t.x&&z.x<t.x+t.w&&z.y+z.h>=t.y){
-        z.can-=5;t.aktif=false;t.bekleme=180;
-        patlamalar.push({x:z.x+z.w/2,y:z.y,r:25,renk:'#ffaa00'});
-        if(z.can<=0)zombiOl(zi,z);
-      }
-    });
-    tuzaklar.forEach(t=>{if(!t.aktif){t.bekleme--;if(t.bekleme<=0)t.aktif=true;}});
-
-    // Patlayan zombi - oyuncuya yaklaşınca patla
-    if(z.tip==='patlayan'&&!z.patladi){
-      let dx=Math.abs((z.x+z.w/2)-(oyuncu.x+oyuncu.w/2));
-      if(dx<60){
-        z.patladi=true;
-        can=Math.max(0,can-z.hasar);guncelle_bilgi();
-        patlamalar.push({x:z.x+z.w/2,y:z.y,r:80,renk:'#ff6600'});
-        zombiler.splice(zi,1);
-        if(can<=0)bitis();
-        return;
-      }
-    }
-
-    // Okçu zombi - uzaktan ok atar
-    if(z.tip==='okcu'&&frameNo-z.atisZamani>90){
-      let dx=(oyuncu.x+oyuncu.w/2)-(z.x+z.w/2);
-      let uzak=Math.abs(dx);
-      if(uzak>100&&uzak<400){
-        z.atisZamani=frameNo;
-        dusmanMermi.push({x:z.x+z.w/2,y:z.y+z.h/2,vx:(dx/uzak)*6,vy:0,r:5,hasar:1,renk:'#556B2F'});
-      }
-    }
-
-    // Oyuncuya çarpma
-    if(z.x+z.w>oyuncu.x&&z.x<oyuncu.x+oyuncu.w&&z.y+z.h>oyuncu.y&&z.y<oyuncu.y+oyuncu.h&&z.canTitreme===0){
-      can--;guncelle_bilgi();
-      z.canTitreme=60;
-      z.x=z.hiz>0?-60:W+60;
-      if(can<=0){bitis();return;}
-    }
-  });
-
-  // Yeni dalga
-  if(zombiler.length===0&&frameNo>60){
-    dalga++;para+=50;guncelle_bilgi();zombiUret();
-  }
+function yenidenBasla(){
+  oyuncu.pos.set(10,15,10);
+  oyuncu.vel.set(0,0,0);
+  oyuncu.can=oyuncu.maxCan;
+  canGuncelle();
+  document.getElementById('mesaj').style.display='none';
 }
 
-function zombiOl(zi,z){
-  if(!zombiler[zi])return;
-  zombiler.splice(zi,1);
-  skor+=10*dalga;para+=z.altin;
-  altinlar.push({x:z.x+z.w/2,y:z.y,bekleme:90,miktar:z.altin});
-  patlamalar.push({x:z.x+z.w/2,y:z.y+z.h/2,r:25,renk:'#ff4400'});
-  guncelle_bilgi();
-}
-
-function ciz(){
-  // Arkaplan
-  let grad=ctx.createLinearGradient(0,0,0,H);
-  grad.addColorStop(0,'#0a0a1a');grad.addColorStop(1,'#1a0a0a');
-  ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
-
-  // Zemin
-  ctx.fillStyle='#2d1b00';ctx.fillRect(0,ZEMIN,W,H-ZEMIN);
-  ctx.fillStyle='#3d2500';ctx.fillRect(0,ZEMIN,W,8);
-
-  // Tuzaklar
-  tuzaklar.forEach(t=>{
-    ctx.fillStyle=t.aktif?'#ffaa00':'#555';
-    ctx.fillRect(t.x,t.y,t.w,t.h);
-    if(t.aktif){
-      ctx.fillStyle='#ff4400';
-      for(let i=0;i<3;i++)ctx.fillRect(t.x+6+i*12,t.y-4,4,4);
-    }
-  });
-
-  // Barikatlar
-  barikatlar.forEach(b=>{
-    let renkler=['#8B4513','#888888','#4488ff'];
-    let r2=['#654321','#666666','#2255cc'];
-    ctx.fillStyle=renkler[duvarSev];ctx.fillRect(b.x,b.y,b.w,b.h);
-    ctx.fillStyle=r2[duvarSev];
-    for(let i=0;i<3;i++)ctx.fillRect(b.x+2,b.y+4+i*16,b.w-4,8);
-    ctx.fillStyle='#ff0000';ctx.fillRect(b.x,b.y-6,b.w,4);
-    ctx.fillStyle='#00ff00';ctx.fillRect(b.x,b.y-6,b.w*(b.can/b.canMax),4);
-    ctx.fillStyle='#fff';ctx.font='bold 10px Arial';ctx.textAlign='center';
-    ctx.fillText('Lv'+(duvarSev+1),b.x+b.w/2,b.y+b.h/2+4);
-  });
-
-  // Kuleler
-  kuleler.forEach(k=>{
-    ctx.fillStyle='#334';ctx.fillRect(k.x,k.y,k.w,k.h);
-    ctx.font='18px Arial';ctx.textAlign='center';ctx.fillText('🗼',k.x+k.w/2,k.y+24);
-  });
-
-  // Askerler
-  askerObjeler.forEach(a=>{
-    ctx.font='22px Arial';ctx.textAlign='center';
-    ctx.fillText(a.emoji,a.x+14,a.y+a.h-4);
-    // Seviye göster
-    ctx.fillStyle=a.renk;ctx.font='bold 9px Arial';
-    ctx.fillText('Lv'+a.seviye,a.x+14,a.y-2);
-    // Menzil göstergesi
-    ctx.strokeStyle=a.renk+'44';ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(a.x+14,a.y);ctx.lineTo(a.x+14-a.menzil,a.y);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(a.x+14,a.y);ctx.lineTo(a.x+14+a.menzil,a.y);ctx.stroke();
-  });
-
-  // Zombiler
-  zombiler.forEach(z=>{
-    if(z.canTitreme>0&&Math.floor(z.canTitreme/5)%2===0)return;
-    // Zombi tipi rengine göre arkaplan
-    ctx.fillStyle=z.renk+'88';
-    ctx.beginPath();ctx.arc(z.x+z.w/2,z.y+z.h/2,z.w/2+4,0,Math.PI*2);ctx.fill();
-    ctx.font=(z.tip==='dev'?'38px':'24px')+' Arial';
-    ctx.textAlign='center';ctx.fillText(z.emoji,z.x+z.w/2,z.y+z.h);
-    // Zırh efekti
-    if(z.tip==='zirh'){
-      ctx.strokeStyle='#aaa';ctx.lineWidth=3;
-      ctx.strokeRect(z.x,z.y,z.w,z.h);
-    }
-    // Can barı
-    ctx.fillStyle='#ff0000';ctx.fillRect(z.x,z.y-7,z.w,4);
-    ctx.fillStyle='#00ff00';ctx.fillRect(z.x,z.y-7,z.w*(z.can/z.canMax),4);
-    // Tip etiketi
-    ctx.fillStyle='#fff';ctx.font='9px Arial';ctx.textAlign='center';
-    ctx.fillText(ZOMBİTİPLER[z.tip]?.ad||'',z.x+z.w/2,z.y-9);
-  });
-
-  // Oyuncu mermileri
-  mermiler.forEach(m=>{
-    ctx.fillStyle=m.renk;
-    if(m.tip==='lazer'){ctx.fillRect(m.x-3,m.y-10,6,16);}
-    else{ctx.beginPath();ctx.arc(m.x,m.y,m.r,0,Math.PI*2);ctx.fill();}
-  });
-
-  // Düşman mermileri
-  dusmanMermi.forEach(m=>{
-    ctx.fillStyle=m.renk;
-    ctx.beginPath();ctx.arc(m.x,m.y,m.r,0,Math.PI*2);ctx.fill();
-  });
-
-  // Patlamalar
-  patlamalar.forEach(p=>{
-    ctx.fillStyle='rgba(255,150,0,0.3)';
-    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
-  });
-
-  // Altınlar
-  altinlar.forEach(a=>{
-    ctx.font='16px Arial';ctx.textAlign='center';ctx.fillText('💰',a.x,a.y);
-    ctx.fillStyle='#ffdd00';ctx.font='bold 10px Arial';
-    ctx.fillText('+'+a.miktar+'💰',a.x,a.y-14);
-  });
-
-  // Oyuncu
-  ctx.globalAlpha=oyuncu.barikatArka?0.6:1;
-  ctx.font='28px Arial';ctx.textAlign='center';
-  let oyuncuEmoji=seciliSilah==='kilic'||seciliSilah==='balta'?'🧙':seciliSilah==='sihir'||seciliSilah==='lazer'?'🧙‍♂️':'🧑';
-  ctx.fillText(oyuncuEmoji,oyuncu.x+oyuncu.w/2,oyuncu.y+oyuncu.h);
-  ctx.globalAlpha=1;
-
-  // Silah göster
-  let s=SILAHLAR[seciliSilah];
-  ctx.font='16px Arial';
-  ctx.fillText(s.emoji,oyuncu.x+oyuncu.w/2+(oyuncu.yon*22),oyuncu.y+20);
-
-  // Dalga yazısı
-  ctx.fillStyle='rgba(0,200,255,0.08)';ctx.font='bold 80px Arial';ctx.textAlign='center';
-  ctx.fillText('DALGA '+dalga,W/2,H/2+20);
-
-  // HUD
-  ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillRect(0,0,W,28);
-  ctx.fillStyle='#00ff88';ctx.font='bold 12px Arial';ctx.textAlign='left';
-  ctx.fillText('❤️'.repeat(Math.max(0,can))+' | 💰'+para+' | ⭐'+skor,8,18);
-}
-
-function bitis(){
-  oyunBitti=true;
-  ctx.fillStyle='rgba(0,0,0,0.8)';ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='#ff4444';ctx.font='bold 44px Arial';ctx.textAlign='center';
-  ctx.fillText('OYUN BİTTİ!',W/2,H/2-40);
-  ctx.fillStyle='#ffdd00';ctx.font='24px Arial';
-  ctx.fillText('Skor: '+skor,W/2,H/2+10);
-  ctx.fillText('Dalga: '+dalga,W/2,H/2+44);
-  document.getElementById('yenidenBtn').style.display='inline-block';
-}
-
-baslat();
+scene.background = new THREE.Color(0x87ceeb);
+animate();
 </script>
 </body>
 </html>

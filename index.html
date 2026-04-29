@@ -25,42 +25,65 @@
     .games-section { padding: 0 32px 48px; }
     .section-title { font-family: 'Bangers', cursive; font-size: 36px; color: #FFD700; letter-spacing: 2px; margin-bottom: 8px; }
     .section-sub { color: rgba(255,255,255,0.4); margin-bottom: 24px; }
-    .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 16px; }
+    .games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
     .game-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; overflow: hidden; cursor: pointer; transition: transform 0.2s, border-color 0.2s; }
     .game-card:hover { transform: translateY(-6px); border-color: rgba(255,215,0,0.5); }
-    .game-thumb { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 52px; position: relative; }
+    .game-thumb { height: 130px; display: flex; align-items: center; justify-content: center; font-size: 56px; position: relative; }
     .badge { position: absolute; top: 8px; right: 8px; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 10px; }
     .badge-hot { background: #FFD700; color: #0a0a1a; }
     .badge-new { background: #FF4500; color: #fff; }
     .badge-co { background: #00C896; color: #fff; }
+    .badge-3d { background: #8800ff; color: #fff; }
     .game-info { padding: 12px; }
     .game-name { font-weight: 800; font-size: 14px; margin-bottom: 6px; }
+    .game-desc { font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 6px; }
     .tag { display: inline-block; font-size: 11px; color: rgba(255,255,255,0.45); background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 8px; margin: 2px 2px 0 0; }
-    .yakin { opacity: 0.5; }
-    .yakin .game-thumb::after { content: '🔒 Yakında'; position: absolute; bottom: 4px; left: 0; right: 0; text-align: center; font-size: 11px; color: #aaa; }
     .online-banner { margin: 0 32px 48px; background: rgba(0,200,150,0.1); border: 1px solid rgba(0,200,150,0.3); border-radius: 16px; padding: 24px 28px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
     .online-banner h3 { font-family: 'Bangers', cursive; font-size: 24px; color: #00C896; letter-spacing: 1px; }
     .online-banner p { font-size: 14px; color: rgba(255,255,255,0.5); margin-top: 4px; }
     .online-btn { margin-left: auto; background: #00C896; color: #0a0a1a; border: none; padding: 10px 24px; border-radius: 20px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 14px; cursor: pointer; }
     footer { text-align: center; padding: 20px; border-top: 1px solid rgba(255,255,255,0.07); color: rgba(255,255,255,0.2); font-size: 12px; }
+
+    /* YORUM SİSTEMİ */
+    .yorum-section { padding: 0 32px 48px; }
+    .yorum-section .section-title { font-size: 28px; margin-bottom: 16px; }
+    .yorum-form { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; margin-bottom: 24px; }
+    .yorum-form input, .yorum-form textarea, .yorum-form select { width: 100%; padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.07); color: #fff; font-family: 'Nunito', sans-serif; font-size: 14px; margin-bottom: 12px; outline: none; }
+    .yorum-form textarea { height: 80px; resize: none; }
+    .yorum-form select option { background: #1a1a2e; color: #fff; }
+    .yildiz-sec { display: flex; gap: 6px; margin-bottom: 12px; }
+    .yildiz { font-size: 28px; cursor: pointer; opacity: 0.3; transition: opacity 0.15s; }
+    .yildiz.aktif { opacity: 1; }
+    .yorum-gonder { background: #FFD700; color: #0a0a1a; border: none; padding: 10px 28px; border-radius: 20px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 14px; cursor: pointer; transition: transform 0.15s; }
+    .yorum-gonder:hover { transform: scale(1.04); }
+    .yorum-kart { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+    .yorum-ust { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+    .yorum-ad { font-weight: 800; font-size: 14px; }
+    .yorum-oyun { font-size: 11px; background: rgba(255,215,0,0.15); color: #FFD700; padding: 2px 10px; border-radius: 10px; }
+    .yorum-tarih { font-size: 11px; color: rgba(255,255,255,0.3); }
+    .yorum-metin { color: rgba(255,255,255,0.75); font-size: 14px; line-height: 1.6; margin-bottom: 10px; }
+    .yorum-alt { display: flex; align-items: center; gap: 12px; }
+    .begeni-btn { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.5); padding: 4px 12px; border-radius: 10px; font-size: 12px; cursor: pointer; transition: all 0.15s; }
+    .begeni-btn:hover { border-color: #FFD700; color: #FFD700; }
+    .bos-yorum { text-align: center; color: rgba(255,255,255,0.3); padding: 32px; font-size: 14px; }
   </style>
 </head>
 <body>
 
   <nav>
     <div class="logo">SAVAŞ<span>ARENA</span></div>
-    <button class="nav-btn">Giriş Yap</button>
+    <button class="nav-btn" onclick="document.querySelector('.yorum-section').scrollIntoView({behavior:'smooth'})">💬 Yorumlar</button>
   </nav>
 
   <section class="hero">
     <h1>SAVAŞ<span>ARENA</span><br>OYUN MERKEZİ</h1>
-    <p>Dövüş, platform ve zombi oyunlarıyla arkadaşlarınla oyna!</p>
-    <button class="btn-primary" onclick="document.querySelector('.games-section').scrollIntoView()">Hemen Oyna</button>
+    <p>Dövüş, platform, zombi ve daha fazlası! Arkadaşlarınla oyna!</p>
+    <button class="btn-primary" onclick="document.querySelector('.games-section').scrollIntoView({behavior:'smooth'})">Hemen Oyna</button>
   </section>
 
   <div class="stats">
-    <div class="stat"><div class="stat-num">7</div><div class="stat-label">OYUN</div></div>
-    <div class="stat"><div class="stat-num">2</div><div class="stat-label">MOD</div></div>
+    <div class="stat"><div class="stat-num">8</div><div class="stat-label">OYUN</div></div>
+    <div class="stat"><div class="stat-num">3D</div><div class="stat-label">OYUNLAR</div></div>
     <div class="stat"><div class="stat-num">MPC</div><div class="stat-label">YAPAY ZEKA</div></div>
     <div class="stat"><div class="stat-num">TR</div><div class="stat-label">TÜRKÇE</div></div>
   </div>
@@ -71,49 +94,90 @@
     <div class="games-grid">
 
       <div class="game-card" onclick="window.location.href='zombi.html'">
-        <div class="game-thumb" style="background:#3d1500">
+        <div class="game-thumb" style="background:linear-gradient(135deg,#3d1500,#1a0800)">
           🧟<span class="badge badge-hot">POPÜLER</span>
         </div>
         <div class="game-info">
           <div class="game-name">Zombi Baskını</div>
-          <span class="tag">MPC</span><span class="tag">Online</span>
+          <div class="game-desc">Zombilerden kurtul, barikat kur!</div>
+          <span class="tag">MPC</span><span class="tag">Strateji</span><span class="tag">Kolay/Zor</span>
+        </div>
+      </div>
+
+      <div class="game-card" onclick="window.location.href='civciv.html'">
+        <div class="game-thumb" style="background:linear-gradient(135deg,#1a1000,#2a2000)">
+          🐥🎂<span class="badge badge-new">YENİ</span>
+        </div>
+        <div class="game-info">
+          <div class="game-name">Kek Civciv Macerası</div>
+          <div class="game-desc">3D dünyada civcivle macera!</div>
+          <span class="tag">3D</span><span class="tag">MPC</span><span class="tag">Aksiyon</span>
+        </div>
+      </div>
+
+      <div class="game-card" onclick="window.location.href='minecraft.html'">
+        <div class="game-thumb" style="background:linear-gradient(135deg,#0a2a0a,#153d15)">
+          🧱<span class="badge badge-3d">3D</span>
+        </div>
+        <div class="game-info">
+          <div class="game-name">Mini Minecraft</div>
+          <div class="game-desc">Blok kır, yerleştir, hayatta kal!</div>
+          <span class="tag">3D</span><span class="tag">Sandbox</span><span class="tag">Zombi</span>
         </div>
       </div>
 
       <div class="game-card" onclick="window.location.href='dovus.html'">
-        <div class="game-thumb" style="background:#001540">
-          🥊<span class="badge badge-new">YENİ</span>
+        <div class="game-thumb" style="background:linear-gradient(135deg,#001540,#002060)">
+          🥊<span class="badge badge-hot">POPÜLER</span>
         </div>
         <div class="game-info">
           <div class="game-name">Stick Dövüş</div>
-          <span class="tag">MPC</span><span class="tag">2 Kişi</span>
+          <div class="game-desc">Yumruk, tekme, özel saldırı!</div>
+          <span class="tag">MPC</span><span class="tag">2 Kişi</span><span class="tag">Dövüş</span>
         </div>
       </div>
 
-      <div class="game-card yakin">
-        <div class="game-thumb" style="background:#153d00">🏃</div>
+      <div class="game-card" onclick="window.location.href='araba.html'">
+        <div class="game-thumb" style="background:linear-gradient(135deg,#1a0800,#3d1500)">
+          🚗<span class="badge badge-new">YENİ</span>
+        </div>
         <div class="game-info">
-          <div class="game-name">Platform Kahraman</div>
-          <span class="tag">2 Kişi</span><span class="tag">Online</span>
+          <div class="game-name">Araba Yarışı</div>
+          <div class="game-desc">Kendi arabanı yap ve yaris et!</div>
+          <span class="tag">MPC</span><span class="tag">2 Kişi</span><span class="tag">Yarış</span>
         </div>
       </div>
-      
 
       <div class="game-card" onclick="window.location.href='uzay.html'">
-        <div class="game-thumb" style="background:#000033">
-          🚀<span class="badge badge-new">YENİ</span>
+        <div class="game-thumb" style="background:linear-gradient(135deg,#000033,#000066)">
+          🚀<span class="badge badge-co">CO-OP</span>
         </div>
         <div class="game-info">
           <div class="game-name">Uzay Savaşı</div>
-          <span class="tag">MPC</span><span class="tag">2 Kişi</span>
+          <div class="game-desc">Uzayda düşmanlara karşı savaş!</div>
+          <span class="tag">MPC</span><span class="tag">2 Kişi</span><span class="tag">Atıcı</span>
         </div>
       </div>
 
-      <div class="game-card yakin">
-        <div class="game-thumb" style="background:#003d3d">🔵</div>
+      <div class="game-card" onclick="window.location.href='dovus.html'">
+        <div class="game-thumb" style="background:linear-gradient(135deg,#3d001a,#600030)">
+          🥋<span class="badge badge-hot">POPÜLER</span>
+        </div>
         <div class="game-info">
-          <div class="game-name">Zıplayan Top</div>
-          <span class="tag">2 Kişi</span>
+          <div class="game-name">Boks Maçı</div>
+          <div class="game-desc">Ring'e çık, şampiyon ol!</div>
+          <span class="tag">MPC</span><span class="tag">2 Kişi</span><span class="tag">Dövüş</span>
+        </div>
+      </div>
+
+      <div class="game-card" onclick="window.location.href='dovus.html'">
+        <div class="game-thumb" style="background:linear-gradient(135deg,#3d3d00,#606000)">
+          ⚔️<span class="badge badge-co">CO-OP</span>
+        </div>
+        <div class="game-info">
+          <div class="game-name">Kılıç Düellosu</div>
+          <div class="game-desc">Kılıçlarla epik dövüş!</div>
+          <span class="tag">MPC</span><span class="tag">2 Kişi</span><span class="tag">Online</span>
         </div>
       </div>
 
@@ -128,7 +192,125 @@
     <button class="online-btn">Oda Kur</button>
   </div>
 
+  <!-- YORUM SİSTEMİ -->
+  <section class="yorum-section">
+    <div class="section-title">💬 YORUMLAR</div>
+    <div class="section-sub">Oyunlar hakkında ne düşünüyorsun?</div>
+
+    <div class="yorum-form">
+      <input type="text" id="yorumAd" placeholder="Adın (zorunlu)" maxlength="30">
+      <select id="yorumOyun">
+        <option value="Genel">🎮 Genel</option>
+        <option value="Zombi Baskını">🧟 Zombi Baskını</option>
+        <option value="Kek Civciv Macerası">🐥 Kek Civciv Macerası</option>
+        <option value="Mini Minecraft">🧱 Mini Minecraft</option>
+        <option value="Stick Dövüş">🥊 Stick Dövüş</option>
+        <option value="Araba Yarışı">🚗 Araba Yarışı</option>
+        <option value="Uzay Savaşı">🚀 Uzay Savaşı</option>
+      </select>
+      <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:6px;">Puan ver:</div>
+      <div class="yildiz-sec" id="yildizlar">
+        <span class="yildiz" data-p="1" onclick="yildizSec(1)">★</span>
+        <span class="yildiz" data-p="2" onclick="yildizSec(2)">★</span>
+        <span class="yildiz" data-p="3" onclick="yildizSec(3)">★</span>
+        <span class="yildiz" data-p="4" onclick="yildizSec(4)">★</span>
+        <span class="yildiz" data-p="5" onclick="yildizSec(5)">★</span>
+      </div>
+      <textarea id="yorumMetin" placeholder="Oyunlar hakkında ne düşünüyorsun? Önerilerin var mı?"></textarea>
+      <button class="yorum-gonder" onclick="yorumGonder()">💬 Yorum Gönder</button>
+    </div>
+
+    <div id="yorumListesi"></div>
+  </section>
+
   <footer>SavaşArena © 2025 — Tüm oyunlar tarayıcıda çalışır, kurulum gerekmez.</footer>
+
+<script>
+let seciliPuan = 0;
+
+function yildizSec(p) {
+  seciliPuan = p;
+  document.querySelectorAll('.yildiz').forEach((y, i) => {
+    y.classList.toggle('aktif', i < p);
+  });
+}
+
+function yorumGonder() {
+  let ad = document.getElementById('yorumAd').value.trim();
+  let metin = document.getElementById('yorumMetin').value.trim();
+  let oyun = document.getElementById('yorumOyun').value;
+
+  if (!ad) { alert('Lütfen adını yaz!'); return; }
+  if (!metin) { alert('Lütfen yorum yaz!'); return; }
+  if (seciliPuan === 0) { alert('Lütfen puan ver!'); return; }
+
+  let yorumlar = yorumlarAl();
+  yorumlar.unshift({
+    id: Date.now(),
+    ad, metin, oyun,
+    puan: seciliPuan,
+    tarih: new Date().toLocaleDateString('tr-TR'),
+    begeni: 0
+  });
+  yorumlarKaydet(yorumlar);
+
+  document.getElementById('yorumAd').value = '';
+  document.getElementById('yorumMetin').value = '';
+  document.getElementById('yorumOyun').value = 'Genel';
+  yildizSec(0);
+  seciliPuan = 0;
+  yorumlariGoster();
+  alert('✅ Yorumun eklendi!');
+}
+
+function yorumlarAl() {
+  try {
+    return JSON.parse(localStorage.getItem('savasarena_yorumlar') || '[]');
+  } catch(e) { return []; }
+}
+
+function yorumlarKaydet(y) {
+  try {
+    localStorage.setItem('savasarena_yorumlar', JSON.stringify(y));
+  } catch(e) {}
+}
+
+function begeni(id) {
+  let yorumlar = yorumlarAl();
+  let y = yorumlar.find(y => y.id === id);
+  if (y) { y.begeni = (y.begeni || 0) + 1; yorumlarKaydet(yorumlar); yorumlariGoster(); }
+}
+
+function yorumlariGoster() {
+  let yorumlar = yorumlarAl();
+  let liste = document.getElementById('yorumListesi');
+  if (yorumlar.length === 0) {
+    liste.innerHTML = '<div class="bos-yorum">Henüz yorum yok. İlk yorumu sen yap! 🎮</div>';
+    return;
+  }
+  liste.innerHTML = yorumlar.map(y => `
+    <div class="yorum-kart">
+      <div class="yorum-ust">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="yorum-ad">👤 ${y.ad}</div>
+          <div class="yorum-oyun">${y.oyun}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="color:#FFD700;font-size:16px;">${'★'.repeat(y.puan)}${'☆'.repeat(5-y.puan)}</div>
+          <div class="yorum-tarih">${y.tarih}</div>
+        </div>
+      </div>
+      <div class="yorum-metin">${y.metin}</div>
+      <div class="yorum-alt">
+        <button class="begeni-btn" onclick="begeni(${y.id})">👍 ${y.begeni || 0} Beğeni</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Sayfa açıldığında yorumları göster
+yorumlariGoster();
+</script>
 
 </body>
 </html>

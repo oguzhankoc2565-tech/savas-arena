@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Kek Civciv Macerası</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:#000;overflow:hidden;font-family:Arial,sans-serif;}
+    #ui{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;}
+    #nisan{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:20px;text-shadow:1px 1px 2px #000;}
+    #bilgi{position:absolute;top:10px;left:10px;color:#fff;font-size:13px;text-shadow:1px 1px 2px #000;line-height:2;}
+    #civcivPanel{position:absolute;bottom:100px;left:10px;background:rgba(0,0,0,0.6);border:2px solid #ffdd00;border-radius:12px;padding:10px;min-width:180px;}
+    #civcivPanel h3{color:#ffdd00;font-size:13px;margin-bottom:6px;}
+    .civMod{padding:4px 10px;border-radius:8px;font-size:11px;cursor:pointer;pointer-events:all;margin:2px 0;border:1px solid #555;background:#111;color:#aaa;display:block;width:100%;}
+    .civMod.aktif{border-color:#ffdd00;color:#ffdd00;background:#ffdd0022;}
+    #can{position:absolute;bottom:54px;left:50%;transform:translateX(-50%);display:flex;gap:3px;}
+    #civcivCan{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);display:flex;gap:3px;font-size:13px;}
+    #envanter{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);display:flex;gap:4px;}
+    .slot{width:44px;height:44px;background:rgba(0,0,0,0.6);border:2px solid #888;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+    .slot.aktif{border-color:#ffdd00;}
+    #mesaj{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.9);color:#fff;padding:24px 40px;border-radius:16px;font-size:18px;text-align:center;display:none;pointer-events:all;}
+    #mesaj button{margin:6px;padding:8px 24px;border:none;border-radius:8px;font-size:15px;cursor:pointer;}
+    #baslangic{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;z-index:100;}
+    #baslangic h1{font-size:40px;color:#ffdd00;text-shadow:0 0 20px #ffdd00;margin-bottom:8px;}
+    .zorBtn{padding:12px 28px;border:2px solid #444;border-radius:14px;background:#1a1a1a;color:#fff;font-size:15px;cursor:pointer;margin:8px;transition:all 0.2s;pointer-events:all;}
+    .zorBtn:hover{transform:scale(1.05);}
+    #dalga-bilgi{position:absolute;top:10px;right:10px;color:#fff;font-size:13px;text-align:right;text-shadow:1px 1px 2px #000;line-height:1.8;}
+    #civcivKonusma{position:absolute;bottom:160px;left:10px;background:rgba(0,0,0,0.85);border:2px solid #ffdd00;border-radius:12px;padding:10px 14px;max-width:230px;font-size:12px;color:#ffdd00;display:none;}
+    #arabaPanel{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.6);border:2px solid #ff8800;border-radius:10px;padding:6px 14px;font-size:12px;color:#ff8800;display:none;}
+  </style>
+</head>
+<body>
+<canvas id="cvs"></canvas>
+
+<div id="ui">
+  <div id="nisan">+</div>
+  <div id="bilgi">
+    <div>🧑 Kahraman</div>
+    <div>📍 X:<span id="px">0</span> Z:<span id="pz">0</span></div>
+    <div>🧟 Zombi: <span id="zombiSay">0</span></div>
+    <div>⭐ Skor: <span id="skorEl">0</span></div>
+  </div>
+  <div id="dalga-bilgi">
+    <div>🌊 Dalga: <span id="dalgaEl">1</span></div>
+    <div id="zorEl" style="color:#ffdd00">😐 Normal</div>
+    <div id="arababilgi" style="color:#ff8800;display:none">🚗 Arabalı!</div>
+  </div>
+  <div id="arabaPanel">🚗 CİVCİV ARABASI AKTİF! Daha hızlı ve güçlü!</div>
+  <div id="civcivPanel">
+    <h3>🐥🎂 Kek Civciv</h3>
+    <div style="font-size:12px;">❤️ <span id="civcivCanEl">5</span>/5</div>
+    <div style="margin-top:6px;font-size:11px;color:#aaa;">MOD (E tuşu):</div>
+    <button class="civMod aktif" id="modSaldir" onclick="civcivMod('saldir')">⚔️ Saldır</button>
+    <button class="civMod" id="modKalkan" onclick="civcivMod('kalkan')">🛡️ Kalkan</button>
+    <button class="civMod" id="modAtes" onclick="civcivMod('ates')">🔥 Ateş</button>
+  </div>
+  <div id="civcivKonusma"></div>
+  <div id="can"></div>
+  <div id="civcivCan"></div>
+  <div id="envanter">
+    <div class="slot aktif" id="slot0">👊</div>
+    <div class="slot" id="slot1">⚔️</div>
+    <div class="slot" id="slot2">🔥</div>
+    <div class="slot" id="slot3">💣</div>
+    <div class="slot" id="slot4">🛡️</div>
+  </div>
+  <div id="mesaj"></div>
+</div>
+
+<div id="baslangic">
+  <div style="font-size:80px;margin-bottom:8px;">🐥🎂</div>
+  <h1>KEK CİVCİV MACERASI</h1>
+  <p style="color:#ffdd00;font-size:16px;margin:8px 0;">Kafasında kek olan efsanevi civcivle dünyayı kurtar!</p>
+  <p style="color:#aaa;margin-bottom:6px;">WASD: Hareket | Fare: Bak | Sol Tık: Saldır | E: Civciv Modu | 1-5: Silah | Space: Zıpla</p>
+  <p style="color:#ff8800;font-size:13px;margin-bottom:16px;">🚗 10. dalgada Civciv Arabası! 🗼 Kuleler! 🗺️ Geniş Harita!</p>
+  <div>
+    <button class="zorBtn" style="border-color:#00ff88;color:#00ff88" onclick="oyunuBaslat('kolay')">😊 KOLAY</button>
+    <button class="zorBtn" style="border-color:#ffdd00;color:#ffdd00" onclick="oyunuBaslat('normal')">😐 NORMAL</button>
+    <button class="zorBtn" style="border-color:#ff4444;color:#ff4444" onclick="oyunuBaslat('zor')">😈 ZOR</button>
+  </div>
+  <p style="font-size:12px;color:#555;margin-top:12px;">Zorluk seçtikten sonra ekrana tıkla</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const cvs=document.getElementById('cvs');
+cvs.width=window.innerWidth;cvs.height=window.innerHeight;
+const renderer=new THREE.WebGLRenderer({canvas:cvs,antialias:true});
+renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+
+const scene=new THREE.Scene();
+scene.fog=new THREE.FogExp2(0x87ceeb,0.008);
+scene.background=new THREE.Color(0x87ceeb);
+
+const camera=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,300);
+
+window.addEventListener('resize',()=>{
+  cvs.width=window.innerWidth;cvs.height=window.innerHeight;
+  renderer.setSize(window.innerWidth,window.innerHeight);
+  camera.aspect=window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+});
+
+// === IŞIKLAR ===
+const ambLight=new THREE.AmbientLight(0xffffff,0.5);scene.add(ambLight);
+const sunLight=new THREE.DirectionalLight(0xfffaaa,1.2);
+sunLight.position.set(100,150,100);sunLight.castShadow=true;
+sunLight.shadow.mapSize.width=2048;sunLight.shadow.mapSize.height=2048;
+sunLight.shadow.camera.near=0.5;sunLight.shadow.camera.far=500;
+sunLight.shadow.camera.left=-100;sunLight.shadow.camera.right=100;
+sunLight.shadow.camera.top=100;sunLight.shadow.camera.bottom=-100;
+scene.add(sunLight);
+
+// === GENİŞ ZEMİN (200x200) ===
+const zeminGeo=new THREE.PlaneGeometry(200,200,20,20);
+const zeminMat=new THREE.MeshLambertMaterial({color:0x2d8b2d});
+const zemin=new THREE.Mesh(zeminGeo,zeminMat);
+zemin.rotation.x=-Math.PI/2;zemin.receiveShadow=true;scene.add(zemin);
+
+// Zemin detayları
+for(let i=0;i<200;i++){
+  let geo=new THREE.CircleGeometry(Math.random()*2+0.5,6);
+  let mat=new THREE.MeshLambertMaterial({color:Math.random()<0.5?0x228B22:0x1a6b1a});
+  let m=new THREE.Mesh(geo,mat);
+  m.rotation.x=-Math.PI/2;
+  m.position.set((Math.random()-0.5)*190,0.01,(Math.random()-0.5)*190);
+  scene.add(m);
+}
+
+// Yollar
+function yolEkle(x1,z1,x2,z2){
+  let geo=new THREE.PlaneGeometry(3,Math.sqrt((x2-x1)**2+(z2-z1)**2));
+  let mat=new THREE.MeshLambertMaterial({color:0x555555});
+  let m=new THREE.Mesh(geo,mat);
+  m.rotation.x=-Math.PI/2;
+  m.rotation.z=Math.atan2(x2-x1,z2-z1);
+  m.position.set((x1+x2)/2,0.02,(z1+z2)/2);
+  scene.add(m);
+}
+yolEkle(-90,0,90,0);yolEkle(0,-90,0,90);
+yolEkle(-90,-90,90,90);yolEkle(90,-90,-90,90);
+
+// Ağaçlar
+for(let i=0;i<80;i++){
+  let x=(Math.random()-0.5)*180,z=(Math.random()-0.5)*180;
+  if(Math.abs(x)<8&&Math.abs(z)<8)continue;
+  let yukseklik=Math.random()*4+3;
+  let govGeo=new THREE.CylinderGeometry(0.3,0.6,yukseklik,8);
+  let govMat=new THREE.MeshLambertMaterial({color:0x8B4513});
+  let gov=new THREE.Mesh(govGeo,govMat);
+  gov.position.set(x,yukseklik/2,z);gov.castShadow=true;scene.add(gov);
+  let yapR=Math.random()*1.5+1.5;
+  let yapGeo=new THREE.SphereGeometry(yapR,8,6);
+  let yapRenk=Math.random()<0.7?0x228B22:Math.random()<0.5?0x2d6b2d:0xff4400;
+  let yapMat=new THREE.MeshLambertMaterial({color:yapRenk});
+  let yap=new THREE.Mesh(yapGeo,yapMat);
+  yap.position.set(x,yukseklik+yapR*0.5,z);yap.castShadow=true;scene.add(yap);
+}
+
+// Kayalar
+for(let i=0;i<40;i++){
+  let x=(Math.random()-0.5)*180,z=(Math.random()-0.5)*180;
+  let r=Math.random()*1.5+0.5;
+  let geo=new THREE.DodecahedronGeometry(r,0);
+  let mat=new THREE.MeshLambertMaterial({color:Math.random()<0.5?0x888888:0x666666});
+  let m=new THREE.Mesh(geo,mat);
+  m.position.set(x,r*0.5,z);m.rotation.set(Math.random(),Math.random(),Math.random());
+  m.castShadow=true;scene.add(m);
+}
+
+// Binalar/Evler
+function binaEkle(x,z){
+  let w=Math.random()*4+4,h=Math.random()*5+4,d=Math.random()*4+4;
+  let geo=new THREE.BoxGeometry(w,h,d);
+  let mat=new THREE.MeshLambertMaterial({color:Math.random()<0.5?0xddccaa:0xccbbaa});
+  let m=new THREE.Mesh(geo,mat);
+  m.position.set(x,h/2,z);m.castShadow=true;m.receiveShadow=true;scene.add(m);
+  let catGeo=new THREE.ConeGeometry(Math.max(w,d)*0.8,2,4);
+  let catMat=new THREE.MeshLambertMaterial({color:0x884422});
+  let cat=new THREE.Mesh(catGeo,catMat);
+  cat.position.set(x,h+1,z);cat.castShadow=true;scene.add(cat);
+}
+for(let i=0;i<12;i++){
+  let x=(Math.random()-0.5)*150,z=(Math.random()-0.5)*150;
+  if(Math.abs(x)<15||Math.abs(z)<15)continue;
+  binaEkle(x,z);
+}
+
+// Dağlar (uzakta)
+for(let i=0;i<8;i++){
+  let aci=i*Math.PI*2/8;
+  let geo=new THREE.ConeGeometry(15,30,8);
+  let mat=new THREE.MeshLambertMaterial({color:0x5a5a5a});
+  let m=new THREE.Mesh(geo,mat);
+  m.position.set(Math.cos(aci)*130,15,Math.sin(aci)*130);
+  scene.add(m);
+  let karGeo=new THREE.ConeGeometry(5,10,8);
+  let karMat=new THREE.MeshLambertMaterial({color:0xffffff});
+  let kar=new THREE.Mesh(karGeo,karMat);
+  kar.position.set(Math.cos(aci)*130,35,Math.sin(aci)*130);
+  scene.add(kar);
+}
+
+// Çit
+function citEkle(x1,z1,x2,z2){
+  let uzak=Math.sqrt((x2-x1)**2+(z2-z1)**2);
+  let sayi=Math.floor(uzak/3);
+  for(let i=0;i<sayi;i++){
+    let t=i/sayi;
+    let x=x1+(x2-x1)*t,z=z1+(z2-z1)*t;
+    let geo=new THREE.BoxGeometry(0.2,1.5,0.2);
+    let mat=new THREE.MeshLambertMaterial({color:0x8B4513});
+    let m=new THREE.Mesh(geo,mat);
+    m.position.set(x,0.75,z);scene.add(m);
+  }
+}
+citEkle(-95,-95,95,-95);citEkle(95,-95,95,95);
+citEkle(95,95,-95,95);citEkle(-95,95,-95,-95);
+
+// === ZOMBİ OLUŞTUR (Gelişmiş Görüntü) ===
+function zombiOlustur(tip){
+  let grup=new THREE.Group();
+  let renkler={
+    normal:{govde:0x2d5a1b,deri:0x4a8a2d,goz:0xff0000},
+    hizli:{govde:0x006600,deri:0x008800,goz:0xff6600},
+    dev:{govde:0x8B0000,deri:0xaa2200,goz:0xff0000},
+    zirh:{govde:0x333333,deri:0x555555,goz:0xff4400},
+    patlayan:{govde:0xff4400,deri:0xff6600,goz:0xffff00},
+    kral:{govde:0x4B0082,deri:0x6a0dad,goz:0xffff00}
+  };
+  let r=renkler[tip]||renkler.normal;
+  let boyut=tip==='dev'?1.6:tip==='kral'?1.4:1.0;
+
+  // Bacaklar
+  let bacakGeo=new THREE.BoxGeometry(0.28*boyut,0.7*boyut,0.28*boyut);
+  let bacakMat=new THREE.MeshLambertMaterial({color:r.govde});
+  let bacakL=new THREE.Mesh(bacakGeo,bacakMat);bacakL.position.set(0.22*boyut,0.35*boyut,0);grup.add(bacakL);
+  let bacakR=new THREE.Mesh(bacakGeo,bacakMat);bacakR.position.set(-0.22*boyut,0.35*boyut,0);grup.add(bacakR);
+
+  // Gövde
+  let govGeo=new THREE.BoxGeometry(0.8*boyut,0.9*boyut,0.45*boyut);
+  let govMat=new THREE.MeshLambertMaterial({color:r.deri});
+  let gov=new THREE.Mesh(govGeo,govMat);gov.position.y=1.1*boyut;grup.add(gov);
+
+  // Kollar
+  let kolGeo=new THREE.BoxGeometry(0.25*boyut,0.8*boyut,0.25*boyut);
+  let kolMat=new THREE.MeshLambertMaterial({color:r.govde});
+  let kolL=new THREE.Mesh(kolGeo,kolMat);kolL.position.set(0.55*boyut,1.1*boyut,0.2*boyut);
+  kolL.rotation.x=-0.5;grup.add(kolL);
+  let kolR=new THREE.Mesh(kolGeo,kolMat);kolR.position.set(-0.55*boyut,1.1*boyut,0.2*boyut);
+  kolR.rotation.x=-0.5;grup.add(kolR);
+
+  // Boyun
+  let boyunGeo=new THREE.CylinderGeometry(0.15*boyut,0.18*boyut,0.2*boyut,8);
+  let boyunMat=new THREE.MeshLambertMaterial({color:r.deri});
+  let boyun=new THREE.Mesh(boyunGeo,boyunMat);boyun.position.y=1.65*boyut;grup.add(boyun);
+
+  // Kafa
+  let kafaGeo=new THREE.BoxGeometry(0.65*boyut,0.65*boyut,0.65*boyut);
+  let kafaMat=new THREE.MeshLambertMaterial({color:r.deri});
+  let kafa=new THREE.Mesh(kafaGeo,kafaMat);kafa.position.y=2.1*boyut;grup.add(kafa);
+
+  // Gözler (parlak)
+  let gozGeo=new THREE.BoxGeometry(0.12*boyut,0.1*boyut,0.05*boyut);
+  let gozMat=new THREE.MeshBasicMaterial({color:r.goz});
+  let gozL=new THREE.Mesh(gozGeo,gozMat);gozL.position.set(0.18*boyut,2.15*boyut,0.33*boyut);grup.add(gozL);
+  let gozR=new THREE.Mesh(gozGeo,gozMat);gozR.position.set(-0.18*boyut,2.15*boyut,0.33*boyut);grup.add(gozR);
+
+  // Ağız
+  let agizGeo=new THREE.BoxGeometry(0.25*boyut,0.06*boyut,0.05*boyut);
+  let agizMat=new THREE.MeshBasicMaterial({color:0x880000});
+  let agiz=new THREE.Mesh(agizGeo,agizMat);agiz.position.set(0,2.0*boyut,0.33*boyut);grup.add(agiz);
+
+  // Özel aksesuarlar
+  if(tip==='zirh'){
+    let zirhGeo=new THREE.BoxGeometry(0.9,1.0,0.55);
+    let zirhMat=new THREE.MeshLambertMaterial({color:0x888888,transparent:true,opacity:0.8});
+    let zirh=new THREE.Mesh(zirhGeo,zirhMat);zirh.position.y=1.1;grup.add(zirh);
+    let kasketGeo=new THREE.CylinderGeometry(0.38,0.35,0.25,8);
+    let kasketMat=new THREE.MeshLambertMaterial({color:0x666666});
+    let kasket=new THREE.Mesh(kasketGeo,kasketMat);kasket.position.y=2.45;grup.add(kasket);
+  }
+  if(tip==='kral'){
+    let tacGeo=new THREE.CylinderGeometry(0.35,0.35,0.4,5,1,true);
+    let tacMat=new THREE.MeshLambertMaterial({color:0xFFD700});
+    let tac=new THREE.Mesh(tacGeo,tacMat);tac.position.y=2.55*boyut;grup.add(tac);
+    let pelGeo=new THREE.BoxGeometry(1.2,1.2,0.1);
+    let pelMat=new THREE.MeshLambertMaterial({color:0x8B0000,transparent:true,opacity:0.9});
+    let pel=new THREE.Mesh(pelGeo,pelMat);pel.position.set(0,1.1,-0.28);grup.add(pel);
+  }
+  if(tip==='patlayan'){
+    let dinamitGeo=new THREE.CylinderGeometry(0.15,0.15,0.5,8);
+    let dinamitMat=new THREE.MeshLambertMaterial({color:0xff2200});
+    for(let i=0;i<3;i++){
+      let d=new THREE.Mesh(dinamitGeo,dinamitMat);
+      d.position.set((i-1)*0.2,1.4,0.25);grup.add(d);
+    }
+  }
+
+  grup.castShadow=true;
+  return grup;
+}
+
+// === CİVCİV ===
+function civcivMeshOlustur(arabaVar){
+  let grup=new THREE.Group();
+  if(arabaVar){
+    // Araba gövdesi
+    let arabGeo=new THREE.BoxGeometry(2.5,0.8,1.5);
+    let arabMat=new THREE.MeshLambertMaterial({color:0xff8800});
+    let arab=new THREE.Mesh(arabGeo,arabMat);arab.position.y=0.5;grup.add(arab);
+    // Kabin
+    let kabinGeo=new THREE.BoxGeometry(1.5,0.7,1.3);
+    let kabinMat=new THREE.MeshLambertMaterial({color:0xffaa33});
+    let kabin=new THREE.Mesh(kabinGeo,kabinMat);kabin.position.set(0,1.1,0);grup.add(kabin);
+    // Camlar
+    let camGeo=new THREE.BoxGeometry(1.4,0.5,0.05);
+    let camMat=new THREE.MeshLambertMaterial({color:0x88ddff,transparent:true,opacity:0.7});
+    let cam=new THREE.Mesh(camGeo,camMat);cam.position.set(0,1.1,0.68);grup.add(cam);
+    // Tekerlekler
+    let tekGeo=new THREE.CylinderGeometry(0.35,0.35,0.2,12);
+    let tekMat=new THREE.MeshLambertMaterial({color:0x222222});
+    let pozlar=[[-0.9,0.35,0.85],[0.9,0.35,0.85],[-0.9,0.35,-0.85],[0.9,0.35,-0.85]];
+    pozlar.forEach(p=>{
+      let t=new THREE.Mesh(tekGeo,tekMat);t.rotation.x=Math.PI/2;
+      t.position.set(...p);grup.add(t);
+      let jantGeo=new THREE.CylinderGeometry(0.2,0.2,0.22,8);
+      let jantMat=new THREE.MeshLambertMaterial({color:0x888888});
+      let j=new THREE.Mesh(jantGeo,jantMat);j.rotation.x=Math.PI/2;
+      j.position.set(...p);grup.add(j);
+    });
+    // Far
+    let farGeo=new THREE.BoxGeometry(0.3,0.2,0.1);
+    let farMat=new THREE.MeshBasicMaterial({color:0xffffaa});
+    let far1=new THREE.Mesh(farGeo,farMat);far1.position.set(0.5,0.5,0.78);grup.add(far1);
+    let far2=new THREE.Mesh(farGeo,farMat);far2.position.set(-0.5,0.5,0.78);grup.add(far2);
+    // Civciv sürücü olarak
+    let civGov=new THREE.SphereGeometry(0.3,8,8);
+    let civMat=new THREE.MeshLambertMaterial({color:0xFFDD00});
+    let civ=new THREE.Mesh(civGov,civMat);civ.position.set(0,1.55,0);grup.add(civ);
+    // Kek üstünde
+    let kekGeo=new THREE.CylinderGeometry(0.25,0.22,0.2,8);
+    let kekMat=new THREE.MeshLambertMaterial({color:0xff9999});
+    let kek=new THREE.Mesh(kekGeo,kekMat);kek.position.set(0,1.92,0);grup.add(kek);
+    let kremGeo=new THREE.ConeGeometry(0.12,0.2,8);
+    let kremMat=new THREE.MeshLambertMaterial({color:0xffffff});
+    let krem=new THREE.Mesh(kremGeo,kremMat);krem.position.set(0,2.12,0);grup.add(krem);
+    // Top (silah)
+    let topGeo=new THREE.SphereGeometry(0.25,8,8);
+    let topMat=new THREE.MeshLambertMaterial({color:0x333333});
+    let top=new THREE.Mesh(topGeo,topMat);top.position.set(0,1.1,0.85);grup.add(top);
+    let namlGeo=new THREE.CylinderGeometry(0.08,0.08,0.8,8);
+    let namlMat=new THREE.MeshLambertMaterial({color:0x222222});
+    let naml=new THREE.Mesh(namlGeo,namlMat);naml.rotation.x=Math.PI/2;naml.position.set(0,1.1,1.3);grup.add(naml);
+  } else {
+    // Normal civciv
+    let govGeo=new THREE.SphereGeometry(0.4,10,10);
+    let govMat=new THREE.MeshLambertMaterial({color:0xFFDD00});
+    let gov=new THREE.Mesh(govGeo,govMat);grup.add(gov);
+    let kekGeo=new THREE.CylinderGeometry(0.35,0.3,0.3,8);
+    let kekMat=new THREE.MeshLambertMaterial({color:0xff9999});
+    let kek=new THREE.Mesh(kekGeo,kekMat);kek.position.set(0,0.5,0);grup.add(kek);
+    let kremGeo=new THREE.ConeGeometry(0.15,0.3,8);
+    let kremMat=new THREE.MeshLambertMaterial({color:0xffffff});
+    let krem=new THREE.Mesh(kremGeo,kremMat);krem.position.set(0,0.8,0);grup.add(krem);
+    let mumGeo=new THREE.CylinderGeometry(0.03,0.03,0.2,6);
+    let mumMat=new THREE.MeshLambertMaterial({color:0xff4444});
+    let mum=new THREE.Mesh(mumGeo,mumMat);mum.position.set(0,1.0,0);grup.add(mum);
+    let gozGeo=new THREE.SphereGeometry(0.07,6,6);
+    let gozMat=new THREE.MeshBasicMaterial({color:0x000000});
+    let goz1=new THREE.Mesh(gozGeo,gozMat);goz1.position.set(0.16,0.1,0.36);grup.add(goz1);
+    let goz2=new THREE.Mesh(gozGeo,gozMat);goz2.position.set(-0.16,0.1,0.36);grup.add(goz2);
+    let kanatGeo=new THREE.BoxGeometry(0.35,0.08,0.2);
+    let kanatMat=new THREE.MeshLambertMaterial({color:0xFFCC00});
+    let k1=new THREE.Mesh(kanatGeo,kanatMat);k1.position.set(0.5,0,0);grup.add(k1);
+    let k2=new THREE.Mesh(kanatGeo,kanatMat);k2.position.set(-0.5,0,0);grup.add(k2);
+  }
+  grup.castShadow=true;
+  scene.add(grup);
+  return grup;
+}
+
+// Kuleler
+function kuleOlustur(x,z){
+  let grup=new THREE.Group();
+  let govGeo=new THREE.CylinderGeometry(0.8,1.0,6,8);
+  let govMat=new THREE.MeshLambertMaterial({color:0x888888});
+  let gov=new THREE.Mesh(govGeo,govMat);gov.position.y=3;grup.add(gov);
+  let tepGeo=new THREE.ConeGeometry(1.1,2,8);
+  let tepMat=new THREE.MeshLambertMaterial({color:0x555555});
+  let tep=new THREE.Mesh(tepGeo,tepMat);tep.position.y=7;grup.add(tep);
+  for(let i=0;i<4;i++){
+    let mazGeo=new THREE.BoxGeometry(0.4,0.6,0.4);
+    let mazMat=new THREE.MeshLambertMaterial({color:0x777777});
+    let maz=new THREE.Mesh(mazGeo,mazMat);
+    maz.position.set(Math.cos(i*Math.PI/2)*1.0,6.3,Math.sin(i*Math.PI/2)*1.0);
+    grup.add(maz);
+  }
+  let kap=new THREE.BoxGeometry(0.8,1.2,0.2);
+  let kapMat=new THREE.MeshLambertMaterial({color:0x5a3a1a});
+  let kapM=new THREE.Mesh(kap,kapMat);kapM.position.set(0,0.6,1.0);grup.add(kapM);
+  grup.position.set(x,0,z);
+  grup.castShadow=true;
+  scene.add(grup);
+  return{mesh:grup,x,z,atisZamani:0};
+}
+
+const kuleler=[];
+let kuleEklendi=false;
+
+// === OYUNCU ===
+const oyuncu={
+  pos:new THREE.Vector3(0,1.8,0),
+  vel:new THREE.Vector3(),
+  yerde:false,pitch:0,yaw:0,
+  can:10,maxCan:10,
+  skor:0,silah:0,
+  saldiriZamani:0,
+  hasarAlma:0
+};
+camera.position.copy(oyuncu.pos);
+
+// === CİVCİV OBJESİ ===
+const civciv={
+  mesh:civcivMeshOlustur(false),
+  can:5,maxCan:5,
+  mod:'saldir',
+  atisZamani:0,
+  konusmaTimer:null,
+  arabaVar:false,
+  arabaLevel:0,
+  konusmalar:[
+    "PIP PIP! Düşman geliyor! 🐥",
+    "Kekimi koruyorum! 🎂",
+    "Sen geç ben hallederim!",
+    "Harika iş çıkardık! ⭐",
+    "Seninle her yere gelirim!",
+    "Kek gücü aktif! 💪",
+    "Zombileri hiç sevmiyorum!",
+    "Hep birlikte kazanacağız!",
+    "PİP PİP! Dikkat et!",
+    "Ben buradayım! 🐥🎂"
+  ]
+};
+
+// === ZOMBİLER ===
+const zombiler=[];
+let zorluk='normal';
+let dalga=1;
+let oyunAktif=false;
+let dalgaTimer=0;
+let skor=0;
+
+const ZORLUK={
+  kolay:{zombiHiz:1.2,zombiCan:2,zombiSayi:4,oyuncuCan:15,civcivGuc:2.5},
+  normal:{zombiHiz:2.0,zombiCan:4,zombiSayi:6,oyuncuCan:10,civcivGuc:1.5},
+  zor:{zombiHiz:3.0,zombiCan:7,zombiSayi:9,oyuncuCan:6,civcivGuc:1.0}
+};
+
+function zombiUret(){
+  let z=ZORLUK[zorluk];
+  let sayi=z.zombiSayi+Math.floor(dalga*1.2);
+  let tipler=['normal','normal','normal','hizli','zirh','dev','patlayan'];
+  if(dalga>=15)tipler.push('kral');
+
+  for(let i=0;i<sayi;i++){
+    let aci=Math.random()*Math.PI*2;
+    let uzak=20+Math.random()*15;
+    let x=oyuncu.pos.x+Math.cos(aci)*uzak;
+    let zz=oyuncu.pos.z+Math.sin(aci)*uzak;
+    x=Math.max(-90,Math.min(90,x));
+    let tipOlasik=Math.min(Math.floor(Math.random()*(1+dalga*0.4)),tipler.length-1);
+    let tip=tipler[tipOlasik];
+    let mesh=zombiOlustur(tip);
+    mesh.position.set(x,0,zz);
+    scene.add(mesh);
+    let canCok=tip==='dev'?3:tip==='kral'?5:tip==='zirh'?2:1;
+    let hizCok=tip==='hizli'?1.8:tip==='dev'?0.5:tip==='kral'?0.8:1.0;
+    zombiler.push({
+      mesh,tip,
+      can:z.zombiCan*canCok*(1+dalga*0.1),
+      maxCan:z.zombiCan*canCok*(1+dalga*0.1),
+      hiz:z.zombiHiz*hizCok*0.025,
+      saldiriZamani:0,
+      hasar:tip==='dev'?3:tip==='kral'?4:1,
+      animFaz:Math.random()*Math.PI*2
+    });
+  }
+  document.getElementById('zombiSay').textContent=zombiler.length;
+
+  // Kule ekle (5. dalgada)
+  if(dalga===5&&!kuleEklendi){
+    kuleEklendi=true;
+    kuleler.push(kuleOlustur(-20,0));
+    kuleler.push(kuleOlustur(20,0));
+    kuleler.push(kuleOlustur(0,-20));
+    kuleler.push(kuleOlustur(0,20));
+    civKonustur("Kuleler inşa edildi! 🗼 Savunma hazır!");
+  }
+
+  // Civciv arabası (10. dalga = Level 1, 20. dalga = Level 2 ...)
+  if(dalga===10&&!civciv.arabaVar){
+    arabaVer(1);
+  } else if(dalga===20&&civciv.arabaLevel<2){
+    arabaVer(2);
+  } else if(dalga===30&&civciv.arabaLevel<3){
+    arabaVer(3);
+  }
+}
+
+function arabaVer(level){
+  civciv.arabaVar=true;civciv.arabaLevel=level;
+  scene.remove(civciv.mesh);
+  civciv.mesh=civcivMeshOlustur(true);
+  document.getElementById('arababilgi').style.display='block';
+  document.getElementById('arabaPanel').style.display='block';
+  document.getElementById('arabaPanel').textContent=
+    `🚗 CİVCİV ARABASI Lv${level} AKTİF! ${level===1?'Temel':'level===2?Güçlendirilmiş':'Elit'} Araç!`;
+  setTimeout(()=>document.getElementById('arabaPanel').style.display='none',4000);
+  civKonustur(`Lv${level} Araba aldım! PİP PİP! 🚗🎂 Artık durdurulamam!`);
+}
+
+// === MERMİLER ===
+const mermiler=[];const civMermiler=[];const patlamalar=[];
+
+function patlama(pos,renk,boyut,omurMax){
+  let geo=new THREE.SphereGeometry(boyut,8,8);
+  let mat=new THREE.MeshBasicMaterial({color:renk,transparent:true,opacity:0.8});
+  let p=new THREE.Mesh(geo,mat);p.position.copy(pos);
+  scene.add(p);patlamalar.push({mesh:p,omur:0,maxOmur:omurMax||20});
+}
+
+// Can bar (3D - zombi üstü)
+const canBarlar=new Map();
+function canBarGuncelle(zombiObj){
+  // Basit yaklaşım - sadece materyali değiştir
+}
+
+// Kule ateşi
+function kuleAtes(k){
+  if(!oyunAktif||zombiler.length===0)return;
+  let hedef=null,enUzak=Infinity;
+  zombiler.forEach(z=>{
+    let d=new THREE.Vector3(k.x,0,k.z).distanceTo(z.mesh.position);
+    if(d<30&&d<enUzak){enUzak=d;hedef=z;}
+  });
+  if(!hedef)return;
+  let yon=hedef.mesh.position.clone().sub(new THREE.Vector3(k.x,3,k.z)).normalize();
+  let geo=new THREE.SphereGeometry(0.15,6,6);
+  let mat=new THREE.MeshBasicMaterial({color:0x00ccff});
+  let m=new THREE.Mesh(geo,mat);
+  m.position.set(k.x,6,k.z);scene.add(m);
+  mermiler.push({mesh:m,vel:yon.multiplyScalar(0.35),hasar:3+Math.floor(dalga*0.5),tip:'kule',omur:0});
+}
+
+// Civciv güncelle
+function civGuncelle(){
+  if(!oyunAktif)return;
+  let arabaHiz=civciv.arabaVar?0.08:0.05;
+  let arabaMenzil=civciv.arabaVar?20:12;
+  let arabaHasar=(civciv.arabaLevel||0)*2+1;
+
+  let hedefPos=oyuncu.pos.clone();
+  if(civciv.mod==='kalkan'){
+    let on=new THREE.Vector3(-Math.sin(oyuncu.yaw),0,-Math.cos(oyuncu.yaw));
+    hedefPos.add(on.multiplyScalar(civciv.arabaVar?2.5:1.5));
+    hedefPos.y=civciv.arabaVar?0.5:0.8;
+  } else {
+    hedefPos.x+=Math.sin(Date.now()*0.0015)*2+2;
+    hedefPos.z+=Math.cos(Date.now()*0.0015)*1.5;
+    hedefPos.y=civciv.arabaVar?0.5:0.8+Math.sin(Date.now()*0.003)*0.15;
+  }
+
+  let fark=hedefPos.clone().sub(civciv.mesh.position);
+  if(fark.length()>0.5)civciv.mesh.position.add(fark.multiplyScalar(arabaHiz));
+  if(!civciv.arabaVar)civciv.mesh.rotation.y+=0.025;
+
+  if(zombiler.length>0){
+    let enYakin=null,enUzak=Infinity;
+    zombiler.forEach(z=>{
+      let d=z.mesh.position.distanceTo(civciv.mesh.position);
+      if(d<enUzak){enUzak=d;enYakin=z;}
+    });
+    if(enYakin){
+      civciv.mesh.lookAt(enYakin.mesh.position.x,civciv.mesh.position.y,enYakin.mesh.position.z);
+      if(civciv.mod==='saldir'&&enUzak<(civciv.arabaVar?3.5:2.5)&&Date.now()-civciv.atisZamani>400){
+        civciv.atisZamani=Date.now();
+        enYakin.can-=2*ZORLUK[zorluk].civcivGuc*arabaHasar;
+        patlama(enYakin.mesh.position.clone(),'#ffdd00',0.6,15);
+        let idx=zombiler.indexOf(enYakin);
+        if(enYakin.can<=0&&idx>=0)zombiOl(idx);
+      }
+      if(civciv.mod==='ates'&&enUzak<arabaMenzil&&Date.now()-civciv.atisZamani>600){
+        civciv.atisZamani=Date.now();
+        let yon=enYakin.mesh.position.clone().sub(civciv.mesh.position);
+        yon.y=0;yon.normalize();
+        let geo=new THREE.SphereGeometry(0.15,6,6);
+        let mat=new THREE.MeshBasicMaterial({color:civciv.arabaVar?0xff8800:0xff4400});
+        let m=new THREE.Mesh(geo,mat);
+        m.position.copy(civciv.mesh.position).add(new THREE.Vector3(0,0.8,0));
+        scene.add(m);
+        civMermiler.push({mesh:m,vel:yon.multiplyScalar(0.35),hasar:3*ZORLUK[zorluk].civcivGuc*arabaHasar,omur:0});
+      }
+      if(civciv.mod==='kalkan'&&enUzak<2){
+        enYakin.mesh.position.add(enYakin.mesh.position.clone().sub(civciv.mesh.position).normalize().multiplyScalar(0.15));
+      }
+    }
+  }
+
+  // Araba top (kule modu)
+  if(civciv.arabaVar&&civciv.mod==='kule'&&zombiler.length>0&&Date.now()-civciv.atisZamani>400){
+    // En yakın zombiye ateş
+  }
+}
+
+function civcivMod(m){
+  civciv.mod=m;
+  ['saldir','kalkan','ates'].forEach(x=>{
+    let el=document.getElementById('mod'+x.charAt(0).toUpperCase()+x.slice(1));
+    if(el)el.classList.toggle('aktif',x===m);
+  });
+  civKonustur(m==='saldir'?"Saldırıyorum! ⚔️":m==='kalkan'?"Seni koruyorum! 🛡️":"Ateşliyorum! 🔥🔥");
+}
+
+function civKonustur(mesaj){
+  let el=document.getElementById('civcivKonusma');
+  el.textContent='🐥: '+mesaj;el.style.display='block';
+  clearTimeout(civciv.konusmaTimer);
+  civciv.konusmaTimer=setTimeout(()=>el.style.display='none',3500);
+}
+
+// === KONTROLLER ===
+let fareKilitli=false;
+const tuslar={};
+
+document.addEventListener('pointerlockchange',()=>{
+  fareKilitli=document.pointerLockElement===cvs;
+});
+
+document.addEventListener('mousemove',e=>{
+  if(!fareKilitli)return;
+  oyuncu.yaw-=e.movementX*0.002;
+  // DÜZELTİLDİ: pitch artık doğru yönde
+  oyuncu.pitch+=e.movementY*0.002;
+  oyuncu.pitch=Math.max(-1.2,Math.min(1.2,oyuncu.pitch));
+});
+
+document.addEventListener('keydown',e=>{
+  tuslar[e.code]=true;
+  if(e.code==='Space'){e.preventDefault();
+    if(oyuncu.yerde){oyuncu.vel.y=0.2;oyuncu.yerde=false;}
+  }
+  if(e.code==='KeyE'){
+    let modlar=['saldir','kalkan','ates'];
+    let idx=modlar.indexOf(civciv.mod);
+    civcivMod(modlar[(idx+1)%modlar.length]);
+  }
+  for(let i=1;i<=5;i++)if(e.code===`Digit${i}`)slotSec(i-1);
+});
+document.addEventListener('keyup',e=>tuslar[e.code]=false);
+
+document.addEventListener('mousedown',e=>{
+  if(!fareKilitli||!oyunAktif)return;
+  if(e.button===0)saldir();
+});
+
+function slotSec(i){
+  document.getElementById(`slot${oyuncu.silah}`).classList.remove('aktif');
+  oyuncu.silah=i;
+  document.getElementById(`slot${oyuncu.silah}`).classList.add('aktif');
+}
+
+function saldir(){
+  if(Date.now()-oyuncu.saldiriZamani<280)return;
+  oyuncu.saldiriZamani=Date.now();
+  let silahlar=[
+    {tip:'yumruk',hasar:2,menzil:2.5,renk:0xffaa00},
+    {tip:'kilic',hasar:5,menzil:3.5,renk:0xcccccc},
+    {tip:'ates',hasar:4,menzil:50,renk:0xff4400},
+    {tip:'bomba',hasar:10,menzil:60,renk:0xff0000},
+    {tip:'kalkan',hasar:0,menzil:0,renk:0x4488ff}
+  ];
+  let s=silahlar[oyuncu.silah];
+  if(s.tip==='yumruk'||s.tip==='kilic'){
+    let yon=new THREE.Vector3(-Math.sin(oyuncu.yaw),0,-Math.cos(oyuncu.yaw));
+    for(let i=zombiler.length-1;i>=0;i--){
+      let z=zombiler[i];
+      let d=z.mesh.position.distanceTo(oyuncu.pos);
+      let zYon=z.mesh.position.clone().sub(oyuncu.pos).normalize();zYon.y=0;
+      if(d<s.menzil&&zYon.dot(yon)>0.25){
+        z.can-=s.hasar;
+        patlama(z.mesh.position.clone(),'#ff4400',0.5,15);
+        if(z.can<=0)zombiOl(i);
+      }
+    }
+    patlama(oyuncu.pos.clone().add(yon.multiplyScalar(2)).add(new THREE.Vector3(0,1,0)),s.renk,0.4,12);
+  } else if(s.tip==='ates'||s.tip==='bomba'){
+    // DÜZELTİLDİ: pitch yönü
+    let yon=new THREE.Vector3(
+      -Math.sin(oyuncu.yaw)*Math.cos(oyuncu.pitch),
+      Math.sin(oyuncu.pitch),
+      -Math.cos(oyuncu.yaw)*Math.cos(oyuncu.pitch)
+    );
+    let geo=new THREE.SphereGeometry(s.tip==='bomba'?0.2:0.12,6,6);
+    let mat=new THREE.MeshBasicMaterial({color:s.renk});
+    let m=new THREE.Mesh(geo,mat);
+    m.position.copy(oyuncu.pos).add(new THREE.Vector3(0,-0.1,0));
+    scene.add(m);
+    mermiler.push({mesh:m,vel:yon.multiplyScalar(0.45),hasar:s.hasar,tip:s.tip,omur:0});
+  }
+}
+
+function zombiOl(idx){
+  if(idx<0||idx>=zombiler.length)return;
+  let z=zombiler[idx];
+  patlama(z.mesh.position.clone().add(new THREE.Vector3(0,1,0)),'#ff4400',1,25);
+  patlama(z.mesh.position.clone(),'#ffaa00',0.6,20);
+  scene.remove(z.mesh);
+  zombiler.splice(idx,1);
+  let puan=z.tip==='kral'?100:z.tip==='dev'?50:z.tip==='zirh'?30:10;
+  skor+=puan*dalga;
+  oyuncu.skor=skor;
+  document.getElementById('skorEl').textContent=skor;
+  document.getElementById('zombiSay').textContent=zombiler.length;
+  if(Math.random()<0.3){
+    let s=civciv.konusmalar[Math.floor(Math.random()*civciv.konusmalar.length)];
+    civKonustur(s);
+  }
+}
+
+function canGuncelle(){
+  let canDiv=document.getElementById('can');
+  canDiv.innerHTML='';
+  for(let i=0;i<Math.min(oyuncu.maxCan,15);i++){
+    let k=document.createElement('span');
+    k.style.fontSize='14px';
+    k.textContent=i<oyuncu.can?'❤️':'🖤';
+    canDiv.appendChild(k);
+  }
+  let ccDiv=document.getElementById('civcivCan');
+  ccDiv.innerHTML='🐥: ';
+  for(let i=0;i<civciv.maxCan;i++){
+    let k=document.createElement('span');k.style.fontSize='13px';
+    k.textContent=i<civciv.can?'💛':'🖤';ccDiv.appendChild(k);
+  }
+  document.getElementById('civcivCanEl').textContent=civciv.can;
+}
+
+const saat=new THREE.Clock();
+let animId=null;
+let kuleTimer=0;
+
+function animate(){
+  animId=requestAnimationFrame(animate);
+  let dt=saat.getDelta();
+
+  if(fareKilitli&&oyunAktif){
+    // Kamera rotasyonu - DÜZELTİLDİ
+    camera.rotation.order='YXZ';
+    camera.rotation.y=oyuncu.yaw;
+    camera.rotation.x=-oyuncu.pitch;
+
+    // Hareket
+    let ileri=new THREE.Vector3(-Math.sin(oyuncu.yaw),0,-Math.cos(oyuncu.yaw));
+    let yan=new THREE.Vector3(Math.cos(oyuncu.yaw),0,-Math.sin(oyuncu.yaw));
+    let hVel=new THREE.Vector3();
+    if(tuslar['KeyW'])hVel.add(ileri);
+    if(tuslar['KeyS'])hVel.sub(ileri);
+    if(tuslar['KeyA'])hVel.sub(yan);
+    if(tuslar['KeyD'])hVel.add(yan);
+    if(hVel.length()>0)hVel.normalize().multiplyScalar(0.15);
+
+    oyuncu.vel.y-=0.012;
+    oyuncu.vel.y=Math.max(oyuncu.vel.y,-0.5);
+
+    let yP=oyuncu.pos.clone();
+    yP.x+=hVel.x;yP.z+=hVel.z;yP.y+=oyuncu.vel.y;
+
+    if(yP.y<=1.8){yP.y=1.8;oyuncu.vel.y=0;oyuncu.yerde=true;}
+    else oyuncu.yerde=false;
+
+    yP.x=Math.max(-94,Math.min(94,yP.x));
+    yP.z=Math.max(-94,Math.min(94,yP.z));
+
+    oyuncu.pos.copy(yP);
+    camera.position.copy(oyuncu.pos);
+
+    document.getElementById('px').textContent=Math.floor(oyuncu.pos.x);
+    document.getElementById('pz').textContent=Math.floor(oyuncu.pos.z);
+
+    // Civciv
+    civGuncelle();
+
+    // Kuleler ateş
+    kuleTimer++;
+    if(kuleTimer%80===0){
+      kuleler.forEach(k=>kuleAtes(k));
+    }
+
+    // Civciv mermileri
+    for(let i=civMermiler.length-1;i>=0;i--){
+      let m=civMermiler[i];m.mesh.position.add(m.vel);m.omur++;
+      let carpti=false;
+      for(let zi=zombiler.length-1;zi>=0;zi--){
+        if(m.mesh.position.distanceTo(zombiler[zi].mesh.position)<1.5){
+          zombiler[zi].can-=m.hasar;patlama(m.mesh.position.clone(),'#ff8800',0.4,12);
+          if(zombiler[zi].can<=0)zombiOl(zi);carpti=true;break;
+        }
+      }
+      if(carpti||m.omur>100){scene.remove(m.mesh);civMermiler.splice(i,1);}
+    }
+
+    // Oyuncu mermileri
+    for(let i=mermiler.length-1;i>=0;i--){
+      let m=mermiler[i];m.mesh.position.add(m.vel);m.omur++;
+      if(m.mesh.position.y<-2){scene.remove(m.mesh);mermiler.splice(i,1);continue;}
+      let carpti=false;
+      for(let zi=zombiler.length-1;zi>=0;zi--){
+        if(m.mesh.position.distanceTo(zombiler[zi].mesh.position)<1.8){
+          zombiler[zi].can-=m.hasar;
+          if(m.tip==='bomba'){
+            patlama(m.mesh.position.clone(),'#ff8800',3,30);
+            for(let zi2=zombiler.length-1;zi2>=0;zi2--){
+              if(m.mesh.position.distanceTo(zombiler[zi2].mesh.position)<5){
+                zombiler[zi2].can-=m.hasar*0.6;
+                if(zombiler[zi2].can<=0)zombiOl(zi2);
+              }
+            }
+          } else {
+            patlama(m.mesh.position.clone(),'#ff4400',0.5,12);
+          }
+          if(zombiler[zi]&&zombiler[zi].can<=0)zombiOl(zi);
+          carpti=true;break;
+        }
+      }
+      if(carpti||m.omur>150){scene.remove(m.mesh);mermiler.splice(i,1);}
+    }
+
+    // Patlamalar
+    for(let i=patlamalar.length-1;i>=0;i--){
+      let p=patlamalar[i];p.omur++;
+      p.mesh.material.opacity=0.8*(1-p.omur/p.maxOmur);
+      p.mesh.scale.setScalar(1+p.omur*0.08);
+      if(p.omur>=p.maxOmur){scene.remove(p.mesh);patlamalar.splice(i,1);}
+    }
+
+    // Zombi AI + animasyon
+    for(let i=zombiler.length-1;i>=0;i--){
+      let z=zombiler[i];
+      let hedef=civciv.mod==='kalkan'?civciv.mesh.position:oyuncu.pos;
+      let yon=hedef.clone().sub(z.mesh.position);yon.y=0;
+      if(yon.length()>0.1){yon.normalize();z.mesh.position.add(yon.multiplyScalar(z.hiz));}
+      z.mesh.lookAt(hedef.x,z.mesh.position.y,hedef.z);
+
+      // Yürüme animasyonu
+      z.animFaz+=0.15;
+      if(z.mesh.children[0])z.mesh.children[0].position.z=Math.sin(z.animFaz)*0.05;
+      if(z.mesh.children[1])z.mesh.children[1].position.z=Math.sin(z.animFaz+Math.PI)*0.05;
+
+      // Sınır kontrolü
+      z.mesh.position.x=Math.max(-94,Math.min(94,z.mesh.position.x));
+      z.mesh.position.z=Math.max(-94,Math.min(94,z.mesh.position.z));
+
+      // Oyuncuya saldırı
+      let dO=z.mesh.position.distanceTo(oyuncu.pos);
+      if(dO<2&&Date.now()-z.saldiriZamani>1200&&oyuncu.hasarAlma===0){
+        z.saldiriZamani=Date.now();
+        oyuncu.can-=z.hasar;oyuncu.hasarAlma=80;
+        canGuncelle();civKonustur("DİKKAT! Hasar aldın! 😱");
+        if(oyuncu.can<=0){olum();return;}
+      }
+      if(oyuncu.hasarAlma>0)oyuncu.hasarAlma--;
+
+      // Civcive saldırı
+      let dC=z.mesh.position.distanceTo(civciv.mesh.position);
+      if(dC<(civciv.arabaVar?3:1.8)&&Date.now()-z.saldiriZamani>1500){
+        if(civciv.mod!=='kalkan'){
+          civciv.can=Math.max(0,civciv.can-1);canGuncelle();
+          if(civciv.can<=0){civciv.can=2;civKonustur("Yaralandım ama devam ediyorum! 💪");}
+        }
+      }
+    }
+
+    // Dalga kontrolü
+    dalgaTimer++;
+    if(zombiler.length===0&&dalgaTimer>180){
+      dalgaTimer=0;dalga++;
+      document.getElementById('dalgaEl').textContent=dalga;
+      civKonustur("Dalga "+dalga+"! Hazır ol kahraman! 💪🐥");
+      setTimeout(()=>{if(oyunAktif){zombiUret();}},2500);
+    }
+
+    // Gün/gece döngüsü
+    let gunAci=Date.now()*0.00005;
+    let gunY=Math.sin(gunAci);
+    sunLight.position.set(Math.cos(gunAci)*100,Math.max(20,gunY*150),Math.sin(gunAci)*100);
+    if(gunY>0){
+      scene.background=new THREE.Color(0.5+gunY*0.3,0.7+gunY*0.1,0.9+gunY*0.1);
+      scene.fog.color.set(0.5+gunY*0.3,0.7+gunY*0.1,0.9+gunY*0.1);
+      ambLight.intensity=0.3+gunY*0.5;
+    } else {
+      scene.background=new THREE.Color(0.02,0.02,0.08);
+      scene.fog.color.set(0.02,0.02,0.08);
+      ambLight.intensity=0.1;
+    }
+  }
+
+  renderer.render(scene,camera);
+}
+
+function oyunuBaslat(z){
+  zorluk=z;
+  let ayar=ZORLUK[z];
+  oyuncu.can=ayar.oyuncuCan;oyuncu.maxCan=ayar.oyuncuCan;
+  oyuncu.pos.set(0,1.8,0);oyuncu.vel.set(0,0,0);
+  oyuncu.skor=0;skor=0;dalga=1;
+  civciv.can=5;civciv.maxCan=5;civciv.arabaVar=false;civciv.arabaLevel=0;
+  civciv.mod='saldir';
+
+  zombiler.forEach(z=>scene.remove(z.mesh));zombiler.length=0;
+  mermiler.forEach(m=>scene.remove(m.mesh));mermiler.length=0;
+  civMermiler.forEach(m=>scene.remove(m.mesh));civMermiler.length=0;
+  kuleler.forEach(k=>scene.remove(k.mesh));kuleler.length=0;
+  kuleEklendi=false;dalgaTimer=0;
+
+  scene.remove(civciv.mesh);
+  civciv.mesh=civcivMeshOlustur(false);
+
+  document.getElementById('baslangic').style.display='none';
+  document.getElementById('zorEl').textContent={kolay:'😊 Kolay',normal:'😐 Normal',zor:'😈 Zor'}[z];
+  document.getElementById('zorEl').style.color={kolay:'#00ff88',normal:'#ffdd00',zor:'#ff4444'}[z];
+  document.getElementById('arababilgi').style.display='none';
+
+  oyunAktif=true;
+  canGuncelle();
+  zombiUret();
+  cvs.requestPointerLock();
+  civKonustur("Hazırım! PİP PİP! 🐥🎂 Hadi gidelim!");
+  if(!animId)animate();
+}
+
+function olum(){
+  oyunAktif=false;document.exitPointerLock();
+  let m=document.getElementById('mesaj');m.style.display='block';
+  m.innerHTML=`
+    <div style="font-size:48px">💀</div>
+    <h2 style="color:#ff4444;margin:8px 0">OYUN BİTTİ!</h2>
+    <p>Skor: <b style="color:#ffdd00">${skor}</b></p>
+    <p>Dalga: <b style="color:#00ccff">${dalga}</b></p>
+    <p style="color:#ffdd00;margin-top:8px">🐥: Bir dahaki sefere daha iyisini yaparız!</p>
+    <button style="background:#00ff88;color:#000;border-radius:8px" onclick="tekrarOyna()">🔄 Tekrar</button>
+    <button style="background:#444;color:#fff;border-radius:8px" onclick="window.location.href='index.html'">← Ana Sayfa</button>
+  `;
+}
+
+function tekrarOyna(){
+  document.getElementById('mesaj').style.display='none';
+  document.getElementById('baslangic').style.display='flex';
+}
+
+animate();
+</script>
+</body>
+</html>
