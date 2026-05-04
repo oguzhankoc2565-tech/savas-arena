@@ -1,0 +1,556 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:var(--color-background-tertiary)}
+.page{display:none;min-height:400px}
+.page.active{display:block}
+
+/* ANA MENÜ */
+.menu-wrap{padding:2.5rem 1.5rem;text-align:center}
+.menu-title{font-size:28px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px}
+.menu-sub{font-size:15px;color:var(--color-text-secondary);margin-bottom:2rem}
+.menu-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;max-width:600px;margin:0 auto}
+.mcard{border-radius:20px;padding:1.75rem 1.5rem;cursor:pointer;transition:transform 0.18s,box-shadow 0.18s;text-align:left;border:2px solid transparent;position:relative;overflow:hidden}
+.mcard:hover{transform:translateY(-5px)}
+.mcard-num{position:absolute;top:14px;right:18px;font-size:42px;font-weight:500;opacity:0.12;line-height:1}
+.mcard-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.mcard h3{font-size:18px;font-weight:500;margin-bottom:6px}
+.mcard p{font-size:13px;line-height:1.6;margin-bottom:14px}
+.mcard-tag{display:inline-block;font-size:12px;font-weight:500;padding:4px 12px;border-radius:99px}
+
+.mc-blue{background:#ddeeff;border-color:#b5d4f4}
+.mc-blue .mcard-icon{background:#185FA5}
+.mc-blue h3{color:#0C447C}
+.mc-blue p{color:#185FA5}
+.mc-blue .mcard-tag{background:#185FA5;color:#E6F1FB}
+
+.mc-amber{background:#fff0d6;border-color:#fac775}
+.mc-amber .mcard-icon{background:#854F0B}
+.mc-amber h3{color:#633806}
+.mc-amber p{color:#854F0B}
+.mc-amber .mcard-tag{background:#854F0B;color:#FAEEDA}
+
+.mc-purple{background:#eeeeff;border-color:#cecbf6}
+.mc-purple .mcard-icon{background:#533AB7}
+.mc-purple h3{color:#3C3489}
+.mc-purple p{color:#533AB7}
+.mc-purple .mcard-tag{background:#533AB7;color:#EEEDFE}
+
+.mc-green{background:#e4f5d0;border-color:#c0dd97}
+.mc-green .mcard-icon{background:#3B6D11}
+.mc-green h3{color:#27500A}
+.mc-green p{color:#3B6D11}
+.mc-green .mcard-tag{background:#3B6D11;color:#EAF3DE}
+
+/* İÇ SAYFA */
+.inner{padding:2rem 1.5rem;max-width:680px;margin:0 auto}
+.back-btn{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--color-text-secondary);cursor:pointer;margin-bottom:1.5rem;padding:6px 12px;border-radius:8px;border:1px solid var(--color-border-tertiary);background:var(--color-background-primary)}
+.back-btn:hover{background:var(--color-background-secondary)}
+.section-card{background:var(--color-background-primary);border-radius:20px;padding:1.75rem;margin-bottom:1rem;border:1.5px solid var(--color-border-tertiary)}
+.section-head{display:flex;align-items:center;gap:14px;margin-bottom:1.5rem}
+.section-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.section-head h2{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+
+/* TABS */
+.tabs{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap}
+.tab{font-size:13px;padding:7px 16px;border-radius:99px;border:1.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer;font-weight:500;transition:all 0.15s}
+.tab:hover{background:var(--color-background-secondary)}
+.tab.on{background:#533AB7;color:#fff;border-color:#533AB7}
+
+/* INPUTS */
+.inp{width:100%;padding:10px 14px;font-size:15px;border-radius:10px;border:2px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);outline:none;transition:border-color 0.15s}
+.inp:focus{border-color:#533AB7}
+.row2{display:flex;gap:12px;margin-bottom:1.25rem;flex-wrap:wrap}
+.col{flex:1;min-width:90px}
+lbl{font-size:12px;font-weight:500;color:var(--color-text-secondary);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.03em}
+
+/* STEPS */
+.step{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:var(--color-background-secondary);border-radius:12px;border:1.5px solid var(--color-border-tertiary);margin-bottom:8px}
+.step.hi{border-color:#533AB7;background:#f0eeff}
+.step-num{width:28px;height:28px;border-radius:50%;background:#533AB7;color:#fff;font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-text{font-size:14px;color:var(--color-text-primary);line-height:1.6;padding-top:3px}
+.step-text b{color:#533AB7}
+
+/* RESULT */
+.result{border-radius:12px;padding:14px 18px;margin:1rem 0;font-size:16px;font-weight:500;text-align:center;background:#f0eeff;color:#3C3489;border:1.5px solid #CECBF6}
+
+/* BUTTONS */
+.btn{font-size:14px;font-weight:500;padding:10px 22px;border-radius:10px;border:none;cursor:pointer;transition:all 0.15s}
+.btn-purple{background:#533AB7;color:#fff}
+.btn-purple:hover{background:#3C3489}
+.btn-blue{background:#185FA5;color:#fff}
+.btn-blue:hover{background:#0C447C}
+.btn-green{background:#3B6D11;color:#fff}
+.btn-green:hover{background:#27500A}
+.btn-outline{background:transparent;color:var(--color-text-primary);border:1.5px solid var(--color-border-secondary)}
+.btn-outline:hover{background:var(--color-background-secondary)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+
+/* INFO */
+.info-pill{font-size:13px;color:var(--color-text-secondary);background:var(--color-background-secondary);padding:12px 16px;border-radius:12px;line-height:1.7;margin-top:12px;border:1px solid var(--color-border-tertiary)}
+
+/* SIEVE GRID */
+.sieve-num{display:inline-flex;align-items:center;justify-content:center;border-radius:10px;font-weight:500;border:2px solid;transition:all 0.25s;width:42px;height:42px;font-size:14px;cursor:default}
+</style>
+
+<h2 class="sr-only">Matematik algoritmaları interaktif öğretici</h2>
+
+<!-- ANA MENÜ -->
+<div id="pg-menu" class="page active">
+  <div class="menu-wrap">
+    <div class="menu-title">Matematik Algoritmaları</div>
+    <div class="menu-sub">Bir modül seç ve adım adım öğren!</div>
+    <div class="menu-grid">
+      <div class="mcard mc-blue" onclick="show('ebob')">
+        <div class="mcard-num">01</div>
+        <div class="mcard-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E6F1FB" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17 14v6M14 17h6"/></svg>
+        </div>
+        <h3>EBOB Bul</h3>
+        <p>Öklid algoritmasıyla iki sayının en büyük ortak bölenini adım adım keşfet</p>
+        <span class="mcard-tag">Çarpanlar ve Katlar</span>
+      </div>
+      <div class="mcard mc-amber" onclick="show('asal')">
+        <div class="mcard-num">02</div>
+        <div class="mcard-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FAEEDA" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </div>
+        <h3>Asal Sayı Bul</h3>
+        <p>Eratosthenes kalburu ile 1-1000 arası asal sayıları görsel olarak keşfet</p>
+        <span class="mcard-tag">Doğal Sayılar</span>
+      </div>
+      <div class="mcard mc-purple" onclick="show('aci')">
+        <div class="mcard-num">03</div>
+        <div class="mcard-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#EEEDFE" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M3 20 12 5l9 15"/></svg>
+        </div>
+        <h3>Açılar</h3>
+        <p>Açı türleri, tamamlayıcı ve bütünleyici açılar, üçgende açılar toplamı</p>
+        <span class="mcard-tag">Açılar</span>
+      </div>
+      <div class="mcard mc-green" onclick="show('alan')">
+        <div class="mcard-num">04</div>
+        <div class="mcard-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#EAF3DE" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
+        <h3>Alan Birimi</h3>
+        <p>mm², cm², dm², m², dam², hm², km² arasında çevirme algoritması</p>
+        <span class="mcard-tag">Alan Ölçme</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EBOB -->
+<div id="pg-ebob" class="page">
+  <div class="inner">
+    <div class="back-btn" onclick="showMenu()">← Ana menü</div>
+    <div class="section-card">
+      <div class="section-head">
+        <div class="section-icon" style="background:#E6F1FB">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17 14v6M14 17h6"/></svg>
+        </div>
+        <h2>EBOB — Öklid Algoritması</h2>
+      </div>
+      <div class="row2">
+        <div class="col"><lbl>Birinci sayı</lbl><input class="inp" type="number" id="ea" value="48" min="1" style="border-color:#b5d4f4"></div>
+        <div class="col"><lbl>İkinci sayı</lbl><input class="inp" type="number" id="eb" value="18" min="1" style="border-color:#b5d4f4"></div>
+      </div>
+      <div id="ebob-steps"></div>
+      <div id="ebob-result" class="result" style="display:none;background:#ddeeff;color:#0C447C;border-color:#b5d4f4"></div>
+      <div class="btns"><button class="btn btn-blue" onclick="calcEbob()">Adımları göster</button></div>
+    </div>
+    <div class="info-pill">💡 Büyük sayıyı küçüğe böl, kalanı al. Kalan sıfır olana kadar devam et. Son bölen EBOB'dur.</div>
+  </div>
+</div>
+
+<!-- ASAL -->
+<div id="pg-asal" class="page">
+  <div class="inner">
+    <div class="back-btn" onclick="showMenu()">← Ana menü</div>
+    <div class="section-card">
+      <div class="section-head">
+        <div class="section-icon" style="background:#fff0d6">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#854F0B" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </div>
+        <h2>Eratosthenes Kalburu</h2>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap">
+        <div><lbl>Üst sınır</lbl><input class="inp" type="number" id="sieve-limit" value="50" min="2" max="1000" style="width:100px;border-color:#fac775"></div>
+        <div style="display:flex;gap:8px;margin-top:20px;flex-wrap:wrap">
+          <button class="btn btn-outline" onclick="resetSieve()">Uygula</button>
+          <button class="btn btn-amber" style="background:#854F0B;color:#fff" onclick="stepSieve()">Sonraki adım →</button>
+          <button class="btn btn-outline" onclick="autoSieve()">Otomatik</button>
+        </div>
+      </div>
+      <div id="sieve-info" style="font-size:14px;color:var(--color-text-secondary);margin-bottom:14px;min-height:22px;font-weight:500"></div>
+      <div id="sieve-grid" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1rem;justify-content:center"></div>
+      <div id="sieve-primes" style="font-size:13px;color:var(--color-text-secondary);line-height:1.8"></div>
+    </div>
+  </div>
+</div>
+
+<!-- AÇILAR -->
+<div id="pg-aci" class="page">
+  <div class="inner">
+    <div class="back-btn" onclick="showMenu()">← Ana menü</div>
+    <div class="section-card">
+      <div class="section-head">
+        <div class="section-icon" style="background:#eeeeff">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#533AB7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M3 20 12 5l9 15"/></svg>
+        </div>
+        <h2>Açılar</h2>
+      </div>
+      <div class="tabs">
+        <button class="tab on" onclick="aciTab('turler',this)">Açı türleri</button>
+        <button class="tab" onclick="aciTab('tamtam',this)">Tamamlayıcı / Bütünleyici</button>
+        <button class="tab" onclick="aciTab('ucgen',this)">Üçgende açılar</button>
+      </div>
+
+      <div id="tab-turler">
+        <div style="text-align:center;margin-bottom:18px">
+          <lbl style="display:block;margin-bottom:8px;font-size:14px">Açıyı ayarla: <b id="aci-val" style="color:#533AB7;font-size:18px">60°</b></lbl>
+          <input type="range" min="1" max="359" value="60" id="aci-slider" style="width:100%;accent-color:#533AB7;height:6px" oninput="updateAci(this.value)">
+        </div>
+        <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap;justify-content:center">
+          <div style="text-align:center">
+            <canvas id="aci-canvas" width="220" height="220" style="border-radius:16px;background:#f5f4ff;border:2px solid #CECBF6;display:block"></canvas>
+            <div id="aci-badge" style="margin-top:12px"></div>
+          </div>
+          <div style="flex:1;min-width:180px">
+            <div style="font-size:13px;font-weight:500;color:var(--color-text-secondary);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.04em">Hızlı seç</div>
+            <div id="tur-ozet" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-tamtam" style="display:none">
+        <div class="row2">
+          <div class="col" style="max-width:200px"><lbl>Bir açı (°)</lbl><input class="inp" type="number" id="tt-val" value="35" min="1" max="179" style="border-color:#CECBF6"></div>
+        </div>
+        <div id="tt-steps"></div>
+        <div id="tt-result" class="result" style="display:none"></div>
+        <div class="btns"><button class="btn btn-purple" onclick="calcTT()">Hesapla</button></div>
+        <div class="info-pill" style="margin-top:14px">💡 <b>Tamamlayıcı açı:</b> toplamları 90° &nbsp;|&nbsp; <b>Bütünleyici açı:</b> toplamları 180°</div>
+      </div>
+
+      <div id="tab-ucgen" style="display:none">
+        <div style="font-size:14px;color:var(--color-text-secondary);margin-bottom:1.25rem;background:#f5f4ff;padding:12px 16px;border-radius:12px;border:1px solid #CECBF6">
+          Üçgenin iç açıları toplamı her zaman <b style="color:#533AB7">180°</b>'dir. İki açıyı gir, üçüncüsünü bul.
+        </div>
+        <div class="row2">
+          <div class="col"><lbl>A açısı (°)</lbl><input class="inp" type="number" id="uc-a" value="60" min="1" max="177" style="border-color:#CECBF6" oninput="drawUcgen()"></div>
+          <div class="col"><lbl>B açısı (°)</lbl><input class="inp" type="number" id="uc-b" value="70" min="1" max="177" style="border-color:#CECBF6" oninput="drawUcgen()"></div>
+          <div class="col"><lbl>C açısı (otomatik)</lbl><div class="inp" id="uc-c" style="background:#f5f4ff;font-weight:500;color:#533AB7;font-size:16px;display:flex;align-items:center;justify-content:center;border-color:#CECBF6">?</div></div>
+        </div>
+        <div style="text-align:center;margin-bottom:1rem">
+          <canvas id="ucgen-canvas" width="280" height="200" style="border-radius:16px;background:#f5f4ff;border:2px solid #CECBF6"></canvas>
+        </div>
+        <div id="ucgen-steps"></div>
+        <div id="ucgen-result" class="result" style="display:none"></div>
+        <div class="btns"><button class="btn btn-purple" onclick="calcUcgen()">Adımları göster</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ALAN -->
+<div id="pg-alan" class="page">
+  <div class="inner">
+    <div class="back-btn" onclick="showMenu()">← Ana menü</div>
+    <div class="section-card">
+      <div class="section-head">
+        <div class="section-icon" style="background:#e4f5d0">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3B6D11" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        </div>
+        <h2>Alan Birimi Çevirme</h2>
+      </div>
+      <div id="alan-cetvel" style="margin-bottom:1.5rem"></div>
+      <div class="row2">
+        <div class="col"><lbl>Değer</lbl><input class="inp" type="number" id="a-val" value="5" step="any" style="border-color:#c0dd97"></div>
+        <div class="col"><lbl>Birim</lbl>
+          <select class="inp" id="a-from" style="border-color:#c0dd97">
+            <option value="0">mm²</option><option value="1">cm²</option><option value="2">dm²</option>
+            <option value="3" selected>m²</option><option value="4">dam²</option><option value="5">hm²</option><option value="6">km²</option>
+          </select>
+        </div>
+        <div class="col"><lbl>Hedef birim</lbl>
+          <select class="inp" id="a-to" style="border-color:#c0dd97">
+            <option value="0" selected>mm²</option><option value="1">cm²</option><option value="2">dm²</option>
+            <option value="3">m²</option><option value="4">dam²</option><option value="5">hm²</option><option value="6">km²</option>
+          </select>
+        </div>
+      </div>
+      <div id="alan-steps"></div>
+      <div id="alan-result" class="result" style="display:none;background:#e4f5d0;color:#27500A;border-color:#c0dd97"></div>
+      <div class="btns"><button class="btn btn-green" onclick="calcAlan()">Adımları göster</button></div>
+    </div>
+    <div class="info-pill">💡 Alan biriminde her adımda 100 ile çarpar ya da bölersin. Uzunluktan farklı!</div>
+  </div>
+</div>
+
+<script>
+const aB=['mm²','cm²','dm²','m²','dam²','hm²','km²'];
+const pages=['menu','ebob','asal','aci','alan'];
+
+function showMenu(){
+  pages.forEach(p=>{const el=document.getElementById('pg-'+p);el.className='page'+(p==='menu'?' active':'');});
+}
+function show(d){
+  pages.forEach(p=>{const el=document.getElementById('pg-'+p);el.className='page'+(p===d?' active':'');});
+  if(d==='asal')resetSieve();
+  if(d==='alan')drawACetvel();
+  if(d==='aci'){setTimeout(()=>{updateAci(60);drawTurOzet(60);drawUcgen();},50);}
+}
+
+// EBOB
+function calcEbob(){
+  let a=parseInt(document.getElementById('ea').value),b=parseInt(document.getElementById('eb').value);
+  if(!a||!b||a<1||b<1)return;
+  const el=document.getElementById('ebob-steps');el.innerHTML='';
+  const rel=document.getElementById('ebob-result');rel.style.display='none';
+  let x=a,y=b,steps=[];
+  while(y!==0){const q=Math.floor(x/y),r=x%y;steps.push({x,y,q,r});let t=y;y=r;x=t;}
+  steps.forEach((s,i)=>{
+    const div=document.createElement('div');div.className='step'+(i===steps.length-1?' hi':'');
+    div.style.cssText=i===steps.length-1?'border-color:#b5d4f4;background:#ddeeff':'';
+    div.innerHTML=`<div class="step-num" style="background:#185FA5">${i+1}</div><div class="step-text" style="${i===steps.length-1?'color:#0C447C':''}">${s.x} ÷ ${s.y} = ${s.q}, kalan = <b style="color:#185FA5">${s.r}</b>${s.r===0?' ✓ kalan sıfır, dur!':''}</div>`;
+    el.appendChild(div);
+  });
+  rel.style.display='block';rel.innerHTML=`EBOB(${a}, ${b}) = <b style="font-size:20px">${x}</b>`;
+}
+
+// ASAL
+let sArr=[],sCur=2,sDone=false,sLim=50,sTimer=null;
+function resetSieve(){
+  clearInterval(sTimer);
+  sLim=Math.min(1000,Math.max(2,parseInt(document.getElementById('sieve-limit').value)||50));
+  sArr=Array.from({length:sLim},(_,i)=>({n:i+1,elim:i===0,prime:false}));
+  sCur=2;sDone=false;
+  document.getElementById('sieve-info').textContent='1 sayısı asal değildir. "Sonraki adım" a bas!';
+  document.getElementById('sieve-primes').textContent='';
+  renderSieve();
+}
+function renderSieve(){
+  const el=document.getElementById('sieve-grid');el.innerHTML='';
+  const big=sLim<=50,mid=sLim<=100;
+  const sz=big?42:mid?34:26;
+  const fs=big?14:mid?12:10;
+  sArr.forEach(o=>{
+    const d=document.createElement('div');
+    let bg,col,bc,td='none',op=1;
+    if(o.prime){bg='#3B6D11';col='#EAF3DE';bc='#27500A';}
+    else if(o.elim){bg='#f0f0ec';col='#bbb';bc='#ddd';td='line-through';op=0.7;}
+    else{bg='#fff';col='#333';bc='#ddd';}
+    d.style.cssText=`display:inline-flex;align-items:center;justify-content:center;border-radius:10px;border:2px solid ${bc};font-weight:500;background:${bg};color:${col};text-decoration:${td};width:${sz}px;height:${sz}px;font-size:${fs}px;opacity:${op};transition:all 0.2s`;
+    d.textContent=o.n;el.appendChild(d);
+  });
+}
+function stepSieve(){
+  if(sDone)return;
+  while(sCur<=sLim&&sArr[sCur-1].elim)sCur++;
+  if(sCur>sLim){finishSieve();return;}
+  sArr[sCur-1].prime=true;
+  for(let i=sCur*2;i<=sLim;i+=sCur)sArr[i-1].elim=true;
+  document.getElementById('sieve-info').textContent=`✓ ${sCur} asal sayı! ${sCur}'nin tüm katları silindi.`;
+  sCur++;renderSieve();
+}
+function autoSieve(){clearInterval(sTimer);sTimer=setInterval(()=>{if(sDone){clearInterval(sTimer);return;}stepSieve();},sLim>200?50:180);}
+function finishSieve(){
+  sDone=true;
+  const primes=sArr.filter(o=>o.prime).map(o=>o.n);
+  document.getElementById('sieve-info').textContent=`Tamamlandı! 1-${sLim} arasında ${primes.length} asal sayı bulundu.`;
+  document.getElementById('sieve-primes').innerHTML='<b>Asal sayılar:</b> '+primes.join(', ');
+  renderSieve();
+}
+
+// AÇILAR
+function aciTab(t,btn){
+  ['turler','tamtam','ucgen'].forEach(x=>document.getElementById('tab-'+x).style.display='none');
+  document.getElementById('tab-'+t).style.display='block';
+  document.querySelectorAll('.tab').forEach(b=>b.className='tab');
+  btn.className='tab on';
+  if(t==='ucgen')drawUcgen();
+  if(t==='turler')updateAci(parseInt(document.getElementById('aci-slider').value));
+}
+function aciTur(d){
+  if(d<90)return{l:'Dar açı',c:'#185FA5',bg:'#ddeeff',bc:'#85B7EB'};
+  if(d===90)return{l:'Dik açı',c:'#0F6E56',bg:'#d0f0e4',bc:'#5DCAA5'};
+  if(d<180)return{l:'Geniş açı',c:'#854F0B',bg:'#fff0d6',bc:'#EF9F27'};
+  if(d===180)return{l:'Düz açı',c:'#993C1D',bg:'#fde8e0',bc:'#F0997B'};
+  return{l:'Geri açı (reflex)',c:'#533AB7',bg:'#eeeeff',bc:'#AFA9EC'};
+}
+function updateAci(deg){
+  deg=parseInt(deg);
+  document.getElementById('aci-val').textContent=deg+'°';
+  const cv=document.getElementById('aci-canvas');
+  const ctx=cv.getContext('2d');
+  ctx.clearRect(0,0,220,220);
+  const cx=110,cy=115,r=88;
+  const t=aciTur(deg);
+
+  if(deg===180){
+    ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,0,false);
+    ctx.fillStyle=t.bg;ctx.fill();
+    ctx.beginPath();ctx.moveTo(cx-r,cy);ctx.lineTo(cx+r,cy);
+    ctx.strokeStyle=t.c;ctx.lineWidth=2.5;ctx.stroke();
+    ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,0,false);
+    ctx.strokeStyle=t.bc;ctx.lineWidth=2;ctx.stroke();
+  } else {
+    const endAngle=-(deg*Math.PI/180);
+    ctx.beginPath();ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,0,endAngle,true);
+    ctx.closePath();ctx.fillStyle=t.bg;ctx.fill();
+
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+r,cy);
+    ctx.strokeStyle='#ccc';ctx.lineWidth=2;ctx.stroke();
+
+    const ex=cx+r*Math.cos(endAngle),ey=cy+r*Math.sin(endAngle);
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(ex,ey);
+    ctx.strokeStyle=t.c;ctx.lineWidth=2.5;ctx.stroke();
+
+    ctx.beginPath();ctx.arc(cx,cy,r,0,endAngle,true);
+    ctx.strokeStyle=t.bc;ctx.lineWidth=2;ctx.stroke();
+
+    if(deg===90){
+      ctx.beginPath();ctx.rect(cx+8,cy-18,13,13);
+      ctx.strokeStyle=t.c;ctx.lineWidth=2;ctx.stroke();
+    }
+
+    // derece etiketi — açı içinde ortada
+    const labelAngle=endAngle/2;
+    const labelR=r*0.52;
+    const lx=cx+labelR*Math.cos(labelAngle);
+    const ly=cy+labelR*Math.sin(labelAngle);
+    ctx.fillStyle=t.c;ctx.font='500 14px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    if(deg>25&&deg<335){ctx.fillText(deg+'°',lx,ly);}
+    else{ctx.fillText(deg+'°',cx,cy-r-16);}
+  }
+
+  ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fillStyle=t.c;ctx.fill();
+
+  document.getElementById('aci-badge').innerHTML=`<div style="display:inline-block;padding:8px 20px;border-radius:99px;background:${t.bg};color:${t.c};font-size:15px;font-weight:500;border:2px solid ${t.bc}">${t.l} — ${deg}°</div>`;
+  drawTurOzet(deg);
+}
+
+function drawTurOzet(cur){
+  const el=document.getElementById('tur-ozet');el.innerHTML='';
+  [[45,'Dar'],[90,'Dik'],[130,'Geniş'],[180,'Düz'],[270,'Reflex'],[30,'Dar']].forEach(([val,l])=>{
+    const t=aciTur(val);
+    const isActive=parseInt(cur)===val;
+    const div=document.createElement('div');
+    div.style.cssText=`background:${t.bg};color:${t.c};border:2px solid ${isActive?t.c:t.bc};border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer;font-size:14px;font-weight:500;transition:all 0.15s`;
+    div.innerHTML=`${val}°<br><span style="font-size:12px;font-weight:400">${l}</span>`;
+    div.onclick=()=>{document.getElementById('aci-slider').value=val;updateAci(val);};
+    el.appendChild(div);
+  });
+}
+
+function calcTT(){
+  const v=parseFloat(document.getElementById('tt-val').value);
+  const el=document.getElementById('tt-steps');el.innerHTML='';
+  const rel=document.getElementById('tt-result');rel.style.display='none';
+  if(isNaN(v)||v<=0||v>=180)return;
+  const tam=90-v,but=180-v;
+  const mk=(n,txt,hi)=>{
+    const d=document.createElement('div');d.className='step'+(hi?' hi':'');
+    d.innerHTML=`<div class="step-num">${n}</div><div class="step-text">${txt}</div>`;el.appendChild(d);
+  };
+  mk(1,`Verilen açı: <b>${v}°</b>`,false);
+  v<90?mk(2,`Tamamlayıcı = 90° − ${v}° = <b>${tam}°</b>`,true):mk(2,`${v}° ≥ 90° → <b>tamamlayıcı açısı yoktur</b>`,true);
+  mk(3,`Bütünleyici = 180° − ${v}° = <b>${but}°</b>`,true);
+  rel.style.display='block';
+  rel.innerHTML=v<90?`Tamamlayıcı: <b style="font-size:18px">${tam}°</b> &nbsp;·&nbsp; Bütünleyici: <b style="font-size:18px">${but}°</b>`:`Tamamlayıcı: yok &nbsp;·&nbsp; Bütünleyici: <b style="font-size:18px">${but}°</b>`;
+}
+
+function drawUcgen(){
+  const aVal=parseFloat(document.getElementById('uc-a').value)||0;
+  const bVal=parseFloat(document.getElementById('uc-b').value)||0;
+  const cVal=180-aVal-bVal;
+  const cEl=document.getElementById('uc-c');
+  cEl.textContent=cVal>0?cVal+'°':'?';
+
+  const cv=document.getElementById('ucgen-canvas');
+  const ctx=cv.getContext('2d');
+  ctx.clearRect(0,0,280,200);
+  if(cVal<=0||aVal<=0||bVal<=0||aVal+bVal>=179)return;
+
+  const aR=aVal*Math.PI/180,bR=bVal*Math.PI/180,cR=cVal*Math.PI/180;
+  // Sinüs kuralı ile üçgeni hesapla, taban = 200px
+  const base=200;
+  const sinC=Math.sin(cR);
+  // P1 sol alt, P2 sağ alt, P3 üst
+  const ox=40,oy=170;
+  const p1=[ox,oy];
+  const p2=[ox+base,oy];
+  // P3 = P1'den B kenarı boyunca A açısı yönünde
+  const sideB=base*Math.sin(bR)/sinC;
+  const p3x=ox+sideB*Math.cos(aR);
+  const p3y=oy-sideB*Math.sin(aR);
+
+  // canvas içinde mi kontrol et
+  if(p3x<5||p3x>275||p3y<10||p3y>185){
+    ctx.fillStyle='#999';ctx.font='13px sans-serif';ctx.textAlign='center';
+    ctx.fillText('Üçgen bu alanda gösterilemiyor',140,100);
+    return;
+  }
+
+  ctx.beginPath();ctx.moveTo(p1[0],p1[1]);ctx.lineTo(p2[0],p2[1]);ctx.lineTo(p3x,p3y);ctx.closePath();
+  ctx.fillStyle='#f0eeff';ctx.fill();ctx.strokeStyle='#533AB7';ctx.lineWidth=2.5;ctx.stroke();
+
+  ctx.fillStyle='#3C3489';ctx.font='500 14px sans-serif';ctx.textBaseline='middle';
+  ctx.textAlign='center';
+  ctx.fillText('A='+aVal+'°',p1[0]-4,p1[1]+16);
+  ctx.fillText('B='+bVal+'°',p2[0]+4,p2[1]+16);
+  ctx.fillText('C='+Math.round(cVal)+'°',p3x,p3y-16);
+}
+
+function calcUcgen(){
+  const a=parseFloat(document.getElementById('uc-a').value);
+  const b=parseFloat(document.getElementById('uc-b').value);
+  const el=document.getElementById('ucgen-steps');el.innerHTML='';
+  const rel=document.getElementById('ucgen-result');rel.style.display='none';
+  if(isNaN(a)||isNaN(b)||a<=0||b<=0)return;
+  const c=180-a-b;
+  const mk=(n,txt,hi)=>{const d=document.createElement('div');d.className='step'+(hi?' hi':'');d.innerHTML=`<div class="step-num">${n}</div><div class="step-text">${txt}</div>`;el.appendChild(d);};
+  mk(1,'Üçgende iç açılar toplamı: <b>A + B + C = 180°</b>',false);
+  mk(2,`${a}° + ${b}° + C = 180°`,false);
+  c>0?mk(3,`C = 180° − ${a}° − ${b}° = <b>${c}°</b>`,true):mk(3,'Bu açılarla geçerli bir üçgen oluşmaz! (Toplam 180°\'yi geçiyor)',true);
+  if(c>0){rel.style.display='block';rel.innerHTML=`C açısı = <b style="font-size:20px">${c}°</b>`;}
+}
+
+// ALAN
+function drawACetvel(){
+  const colors=['#185FA5','#0F6E56','#854F0B','#3B6D11','#993C1D','#533AB7','#A32D2D'];
+  const bgs=['#ddeeff','#d0f0e4','#fff0d6','#e4f5d0','#fde8e0','#eeeeff','#fde8e8'];
+  let h='<div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:10px;font-weight:500">Her adımda ÷100 (küçüğe) veya ×100 (büyüğe)</div>';
+  h+='<div style="display:flex;border-radius:14px;overflow:hidden;border:2px solid #e0e0e0">';
+  aB.forEach((b,i)=>{
+    h+=`<div style="background:${bgs[i]};color:${colors[i]};padding:12px 4px;font-size:12px;font-weight:500;flex:1;text-align:center;border-right:${i<6?'1px solid #e0e0e0':'none'};min-width:0">${b}${i<6?`<div style="font-size:10px;opacity:0.8;margin-top:4px">÷100</div>`:'<div style="font-size:10px;margin-top:4px">&nbsp;</div>'}</div>`;
+  });
+  h+='</div>';
+  document.getElementById('alan-cetvel').innerHTML=h;
+}
+function calcAlan(){
+  const val=parseFloat(document.getElementById('a-val').value);
+  const from=parseInt(document.getElementById('a-from').value);
+  const to=parseInt(document.getElementById('a-to').value);
+  if(isNaN(val))return;
+  const el=document.getElementById('alan-steps');el.innerHTML='';
+  const rel=document.getElementById('alan-result');rel.style.display='none';
+  const diff=to-from;
+  const mk=(n,txt,hi)=>{
+    const d=document.createElement('div');d.className='step'+(hi?' hi':'');
+    d.style.cssText=hi?'border-color:#c0dd97;background:#e4f5d0':'';
+    d.innerHTML=`<div class="step-num" style="${hi?'background:#3B6D11':''}">${n}</div><div class="step-text" style="${hi?'color:#27500A':''}">${txt}</div>`;el.appendChild(d);
+  };
+  if(diff===0){mk(1,`Birimler aynı, değişim yok: <b>${val} ${aB[from]}</b>`,true);rel.style.display='block';rel.innerHTML=`<b style="font-size:18px">${val} ${aB[from]}</b>`;return;}
+  const carpan=Math.pow(100,Math.abs(diff));
+  const yon=diff>0?`sağa (÷${carpan})`:`sola (×${carpan})`;
+  const sonuc=diff>0?val/carpan:val*carpan;
+  const sonucStr=+sonuc.toPrecision(10);
+  mk(1,`${aB[from]} → ${aB[to]}: <b>${Math.abs(diff)} adım ${yon}</b>`,false);
+  mk(2,`Alan biriminde her adım 100'lük:<br><b style="color:#3B6D11">${val} ${diff>0?'÷':'×'} ${carpan} = ${sonucStr}</b>`,true);
+  rel.style.display='block';rel.innerHTML=`${val} ${aB[from]} = <b style="font-size:20px;color:#27500A">${sonucStr} ${aB[to]}</b>`;
+}
+</script>
